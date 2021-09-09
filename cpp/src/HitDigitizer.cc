@@ -50,13 +50,17 @@ void HitDigitizer::DigitizeTube(HitTube *aHT, PMTResponse *pr)
     double intgr_end = intgr_srt+fIntegWindow;
     int nDigi = 0;
     vector<int> parent_composition;  
+	vector<TrueHit*> parent_composition2;
+
     parent_composition.clear();
+    parent_composition2.clear();
     for(int iPE=0; iPE<NPE; iPE++)
     {
         if( PEs[iPE]->GetTime()>=intgr_srt && PEs[iPE]->GetTime()<intgr_end )
         {
             sumSPE += pr->GetRawSPE(PEs[iPE]);
             parent_composition.push_back( PEs[iPE]->GetParentId() );
+            parent_composition2.push_back( PEs[iPE] );
         }
         else
         {
@@ -72,16 +76,19 @@ void HitDigitizer::DigitizeTube(HitTube *aHT, PMTResponse *pr)
                 digiT += tSmeared;
                 digiQ = this->DoTruncate(digiQ, fPrecisionCharge);
                 digiT = this->DoTruncate(digiT, fPrecisionTiming);
-                aHT->AddDigiHit(digiT, digiQ, parent_composition);
+                //aHT->AddDigiHit(digiT, digiQ, parent_composition);
+                aHT->AddDigiHit2(digiT, digiQ, parent_composition2);
                 nDigi += 1;
             }
             sumSPE = 0.;
             parent_composition.clear(); 
+            parent_composition2.clear(); 
 
             intgr_srt = PEs[iPE]->GetTime();
             intgr_end = intgr_srt+fIntegWindow;
             sumSPE += pr->GetRawSPE(PEs[iPE]);
-            parent_composition.push_back( PEs[iPE]->GetParentId() );
+            //parent_composition.push_back( PEs[iPE]->GetParentId() );
+            parent_composition2.push_back( PEs[iPE] );
         }
     }
 
@@ -96,7 +103,8 @@ void HitDigitizer::DigitizeTube(HitTube *aHT, PMTResponse *pr)
         digiT += tSmeared ;
         digiQ = this->DoTruncate(digiQ, fPrecisionCharge);
         digiT = this->DoTruncate(digiT, fPrecisionTiming);
-        aHT->AddDigiHit(digiT, digiQ, parent_composition);
+        //aHT->AddDigiHit(digiT, digiQ, parent_composition);
+        aHT->AddDigiHit2(digiT, digiQ, parent_composition2);
     }
 }
 

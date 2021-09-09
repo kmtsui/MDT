@@ -67,21 +67,31 @@ class HitTube
                 fParentCompDigi.push_back( id );
                 fNDigiHits+=1;
             }
+
+        void AddDigiHit2(const float t, const float q, const vector<TrueHit*> &comp=vector<TrueHit*>())
+            {
+                fTimeDigi.push_back( t );
+                fChargeDigi.push_back( q );
+                fParentCompDigi2.push_back( comp );
+                fNDigiHits+=1;
+            }
+
+
         int GetNDigiHits() const { return fNDigiHits; }
         float GetTimeDigi(const int i) const { return fTimeDigi[i]; }
         float GetChargeDigi(const int i) const { return fChargeDigi[i]; }
         const vector<int>& GetParentCompositionDigi(const int i) const { return fParentCompDigi[i]; }
+        const vector<TrueHit*>& GetParentCompositionDigi2(const int i) const { return fParentCompDigi2[i]; }
 
         
     private:
         int fNRawPE;
-        //vector<pair<float, int>> fPhotoElectrons;
         vector<TrueHit*> fPhotoElectrons;
-        //vector<TrueHit*> fTrueHitInfo;
 
         int fTubeID;
         int fNDigiHits;
         vector<float> fTimeDigi;
         vector<float> fChargeDigi;
         vector<vector<int>> fParentCompDigi;
+        vector<vector<TrueHit*>> fParentCompDigi2;
 };
