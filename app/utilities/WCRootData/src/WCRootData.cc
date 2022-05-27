@@ -288,16 +288,7 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
         Int_t     stopvol = aTrack->GetStopvol();
         Int_t     parenttype = aTrack->GetParenttype();
         Int_t     id = aTrack->GetId();
-//        Int_t     idPrnt = aTrack->GetParentId();
-
-//        Float_t   dir[3];
-//        Float_t   pdir[3];
-//        Float_t   stop[3];
-//        Float_t   start[3];
-//        Float_t   m = aTrack->GetM();
-//        Float_t   p = aTrack->GetP();
-//        Float_t   E = aTrack->GetE();
-//        Float_t   time = aTrack->GetTime() + offset_time;
+        Int_t     idPrnt = aTrack->GetParentId();
 
         Double_t   dir[3];
         Double_t   pdir[3];
@@ -315,20 +306,20 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
             start[j] = aTrack->GetStart(j);
         }
         aEvtOut->AddTrack(ipnu, 
-				          flag, 
-				          m, 
-				          p, 
-				          E, 
-				          startvol, 
-				          stopvol, 
-				          dir, 
-				          pdir, 
-				          stop,
-				          start,
-				          parenttype,
-				          time,
-				          id);
-//                          idPrnt);
+			  flag, 
+			  m, 
+			  p, 
+			  E, 
+			  startvol, 
+			  stopvol, 
+			  dir, 
+			  pdir, 
+			  stop,
+			  start,
+			  parenttype,
+			  time,
+			  id,
+			  idPrnt);
     }
 }
 
