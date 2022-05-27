@@ -1,21 +1,17 @@
 #!/bin/bash
 
-export MDTROOT=`pwd`
+source envMDT.sh
 
-if [[ -z "${LD_LIBRARY_PATH}" ]]; then
-	export LD_LIBRARY_PATH=$MDTROOT
-else
-	export LD_LIBRARY_PATH=${MDTROOT}:${LD_LIBRARY_PATH}
-fi
-
-rm -f *.so 
-
-cd cpp
+cd ./cpp
 make clean
 make all
-cd ..
-`ls -d ./cpp/* | grep .so | xargs -l ln -s`
+cd ../app/utilities/WCRootData
+cd $MDTROOT
+echo `pwd`
+cd ./app/application
+make appHKHybridSingleEvent
 
+# Required only if you want python module
 #cd pywrap
 #make clean
 #make all
