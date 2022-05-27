@@ -29,5 +29,6 @@ class TriggerAlgo
         float fTriggerOffsetTime; 
         float fTriggerTimeForFailure;
         float fNDigitsWindow;
+        float fNDigitsStepSize;
         int   fNDigitsThreshold;
 };
