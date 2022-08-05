@@ -6,6 +6,8 @@ cd ./cpp
 make clean
 make all
 cd ../app/utilities/WCRootData
+make clean
+make all
 cd $MDTROOT
 echo `pwd`
 cd ./app/application
