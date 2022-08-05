@@ -9,7 +9,13 @@
 # to the full path to your MDT properly
 
 # Similarly, set the below PATH_TO_MDT properly
-source PATH_TO_MDT/envMDT.sh
+
+CURDIR=`pwd`
+MDTDIR=_MDTDIR_
+cd $MDTDIR
+source envMDT.sh
+
+cd $CURDIR
 
 EXE=$MDTROOT/app/application/appHKHybridSingleEvent
 
