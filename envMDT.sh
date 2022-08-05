@@ -2,9 +2,9 @@
 
 export MDTROOT=`pwd`
 if [[ -z "${LD_LIBRARY_PATH}" ]]; then
-	export LD_LIBRARY_PATH=$MDTROOT
+	export LD_LIBRARY_PATH=$MDTROOT/cpp
 else
-	export LD_LIBRARY_PATH=${MDTROOT}:${LD_LIBRARY_PATH}
+	export LD_LIBRARY_PATH=${MDTROOT}/cpp:${LD_LIBRARY_PATH}
 fi
 
 #--- ROOT
