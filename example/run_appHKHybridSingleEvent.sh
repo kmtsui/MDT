@@ -11,7 +11,7 @@
 # Similarly, set the below PATH_TO_MDT properly
 
 CURDIR=`pwd`
-MDTDIR=_MDTDIR_
+MDTDIR=_MDTROOT_
 cd $MDTDIR
 source envMDT.sh
 
