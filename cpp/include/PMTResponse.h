@@ -43,7 +43,8 @@ class GenericPMTResponse : public PMTResponse
         float fqpe0[501];
         string fTxtFileSPECDF;
 
-    private:
+    //private:
+    protected:
         float fTResConstant;
         float fTResMinimum;
 };

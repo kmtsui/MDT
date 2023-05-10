@@ -20,7 +20,7 @@
 < DarkM0WindowUp_BoxandLine20inchHQE = 100000. > // ns
 < DarkM1Window_BoxandLine20inchHQE = 4000. > // ns
 < ScalFactorTTS_BoxandLine20inchHQE = 1.0 > # WCSim default
-< SPECDFFile_BoxandLine20inchHQE = _MDTROOT_/parameter/SPE_CDF_BoxandLine20inchHQE.txt >
+< SPECDFFile_BoxandLine20inchHQE = /home/hep/rakutsu/t2k/wcte/mdt_4_wcte/MDT/parameter/SPE_CDF_BoxandLine20inchHQE.txt >
 
 # mPMT 3inch PMT
 < NumOfTubes_PMT3inchR14374 = 182704 >
@@ -32,7 +32,7 @@
 < DarkM0WindowUp_PMT3inchR14374 = 100000. > // ns
 < DarkM1Window_PMT3inchR14374 = 4000. > // ns
 < ScalFactorTTS_PMT3inchR14374 = 1.0 > # WCSim default
-< SPECDFFile_PMT3inchR14374 = _MDTROOT_/parameter/SPE_CDF_PMT3inchR14374.txt >
+< SPECDFFile_PMT3inchR14374 = /home/hep/rakutsu/t2k/wcte/mdt_4_wcte/MDT/parameter/SPE_CDF_PMT3inchR14374.txt >
 
 # Digitizer setting
 < DigiHitIntegrationWindow = 200 >  // ns

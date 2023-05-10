@@ -141,6 +141,6 @@ void TriggerAlgo::NDigits(HitTubeCollection *hc, TriggerInfo* ti)
                        trigTimeUp,
                        -1, 
                        (int)TriggerType::eFailure);
-        cout<<" No trigger found " <<endl;
+        //cout<<" No trigger found " <<endl;
     }
 }

@@ -225,7 +225,7 @@ void PMTNoise::Add(HitTubeCollection *hc, double tWinLow, double tWinUp)
         float time = this->GetNoiseTime(k); 
 		hc->AddTrueHit(tubeID, time, -1);
     }
-    cout<<" NumCkovPE(dark PE): " << nDarkHits <<endl;
+    //cout<<" NumCkovPE(dark PE): " << nDarkHits <<endl;
 }
 
 

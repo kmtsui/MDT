@@ -13,6 +13,11 @@ LDFLAGS += $(shell root-config --ldflags) $(shell root-config --libs) -lTreePlay
 
 .PHONY: clean Execs
 
+appWCTESingleEvent: appWCTESingleEvent.o PMTResponse3inchR12199_02.o
+	$(RM) $@
+	$(LD) $^ $(LDFLAGS) -o $@
+	@echo "$@ done"
+
 
 %o::%cc
 	$(CXX) $(CXXFLAGS) -c $? -o $@

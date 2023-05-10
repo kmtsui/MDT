@@ -60,6 +60,7 @@ void WCRootData::AddTrueHitsToMDT(HitTubeCollection *hc, PMTResponse *pr, float 
 
     const WCSimRootTrigger *aEvt = fSpEvt[iPMT]->GetTrigger(0);
     const int nCkovHits = aEvt->GetNcherenkovhits();
+	//std::cout<<" nCkovHits: " << nCkovHits <<std::endl;
 	float pmt_position[3];
 	float pmt_orientation[3];
     TClonesArray *hitTimeArray = aEvt->GetCherenkovHitTimes();
@@ -82,11 +83,13 @@ void WCRootData::AddTrueHitsToMDT(HitTubeCollection *hc, PMTResponse *pr, float 
             if( aHitTime->GetParentID()<0 ){ continue; }
 
             TrueHit *th = new TrueHit(truetime, aHitTime->GetParentID());
+#ifdef HYBRIDWCSIM
             for(int k=0; k<3; k++){ th->SetPosition(k, aHitTime->GetPhotonEndPos(k)); }
             for(int k=0; k<3; k++){ th->SetDirection(k, aHitTime->GetPhotonEndDir(k)); }
+            for(int k=0; k<3; k++){ th->SetStartDirection(k, aHitTime->GetPhotonStartDir(k)); }
+#endif
             th->SetStartTime(aHitTime->GetPhotonStartTime());
             for(int k=0; k<3; k++){ th->SetStartPosition(k, aHitTime->GetPhotonStartPos(k)); }
-            for(int k=0; k<3; k++){ th->SetStartDirection(k, aHitTime->GetPhotonStartDir(k)); }
             if( !pr->ApplyDE(th) ){ continue; }
 
             (&(*hc)[tubeID])->AddRawPE(th);
@@ -201,8 +204,11 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
             anEvent->SetHeader(eventID, 0, 0, iTrig+1);
             anEvent->SetMode(0);
         }
-        //vector<Float_t> info(1, ti->GetNHits(iTrig));
+
+#ifdef HYBRIDWCSIM
         vector<Double_t> info(1, ti->GetNHits(iTrig));
+#endif
+        vector<Float_t> info(1, ti->GetNHits(iTrig));
         anEvent->SetTriggerInfo(trigType, info);
 
         const float triggerTime = ti->GetTriggerTime(iTrig);
@@ -288,8 +294,12 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
         Int_t     stopvol = aTrack->GetStopvol();
         Int_t     parenttype = aTrack->GetParenttype();
         Int_t     id = aTrack->GetId();
+#ifdef HYBRIDWCSIM
         Int_t     idPrnt = aTrack->GetParentId();
+#endif
 
+
+#ifdef HYBRIDWCSIM
         Double_t   dir[3];
         Double_t   pdir[3];
         Double_t   stop[3];
@@ -298,6 +308,16 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
         Double_t   p = aTrack->GetP();
         Double_t   E = aTrack->GetE();
         Double_t   time = aTrack->GetTime() + offset_time;
+#else 
+        Float_t   dir[3];
+        Float_t   pdir[3];
+        Float_t   stop[3];
+        Float_t   start[3];
+        Float_t   m = aTrack->GetM();
+        Float_t   p = aTrack->GetP();
+        Float_t   E = aTrack->GetE();
+        Float_t   time = aTrack->GetTime() + offset_time;
+#endif
         for(int j=0; j<3; j++)
         {
             dir[j] = aTrack->GetDir(j); 
@@ -305,6 +325,8 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
             stop[j] = aTrack->GetStop(j);
             start[j] = aTrack->GetStart(j);
         }
+
+#ifdef HYBRIDWCSIM
         aEvtOut->AddTrack(ipnu, 
 			  flag, 
 			  m, 
@@ -320,6 +342,39 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
 			  time,
 			  id,
 			  idPrnt);
+#else
+        aEvtOut->AddTrack(ipnu, 
+			  flag, 
+			  m, 
+			  p, 
+			  E, 
+			  startvol, 
+			  stopvol, 
+			  dir, 
+			  pdir, 
+			  stop,
+			  start,
+			  parenttype,
+			  time,
+			  id);
+#endif
+
+  WCSimRootTrack         *AddTrack(Int_t ipnu, 
+				   Int_t flag, 
+				   Float_t m, 
+				   Float_t p, 
+				   Float_t E, 
+				   Int_t startvol, 
+				   Int_t stopvol, 
+				   Float_t dir[3], 
+				   Float_t pdir[3], 
+				   Float_t stop[3],
+				   Float_t start[3],
+				   Int_t parenttype,
+				   Float_t time,
+				   Int_t id);
+
+
     }
 }
 
@@ -430,10 +485,12 @@ void WCRootData::CopyTree(const char *filename,
 
 void WCRootData::SetTubes(HitTubeCollection *hc, const int iPMT)
 {
+#ifdef HYBRIDWCSIM
 	const int nTubes = fWCGeom->GetWCNumPMT(bool(iPMT));
 	for(int i=0; i<nTubes; i++)
 	{
 		const WCSimRootPMT *tube = fWCGeom->GetPMTPtr(i, bool(iPMT));
+
 		const int tubeID = tube->GetTubeNo();
 		hc->AddHitTube(tubeID);
 		for(int j=0; j<3; j++)
@@ -442,4 +499,18 @@ void WCRootData::SetTubes(HitTubeCollection *hc, const int iPMT)
 			(&(*hc)[tubeID])->SetOrientation(j, tube->GetOrientation(j));
 		}
 	}
+#else
+	const int nTubes = fWCGeom->GetWCNumPMT();
+	for(int i=0; i<nTubes; i++)
+	{
+  		WCSimRootPMT tube = fWCGeom->GetPMT(i);
+		const int tubeID = tube.GetTubeNo();
+		hc->AddHitTube(tubeID);
+		for(int j=0; j<3; j++)
+		{
+			(&(*hc)[tubeID])->SetPosition(j, tube.GetPosition(j));
+			(&(*hc)[tubeID])->SetOrientation(j, tube.GetOrientation(j));
+		}
+	}
+#endif
 }

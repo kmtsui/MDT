@@ -111,6 +111,7 @@ void GenericPMTResponse::LoadCDFOfSPE(const string &filename)
     {
         cout<<" [ERROR] PMTResponse::LoadCDFOfSPE" <<endl;
         cout<<"  - Different format: " << filename <<endl;
+		cout<<"  - # bins found: " << nBin <<endl;
         cout<<"  -> EXIT" <<endl;
         exit(-1);
     }

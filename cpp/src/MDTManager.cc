@@ -60,6 +60,9 @@ void MDTManager::DoDigitize(const string &pmtname)
     if( this->HasThisPMTType(pmtname) )
     {
         fDgtzr->Digitize(fPHC[pmtname], fPMTResp[pmtname]);
+        //cout<<" # true hits: " << fPHC[pmtname]->GetTotalNumOfTrueHits()
+		//	<<" # digitized hits: " << fPHC[pmtname]->GetTotalNumOfDigiHits()
+		//	<<endl;
     }
 }
 

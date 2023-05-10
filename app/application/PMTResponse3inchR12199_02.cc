@@ -1,0 +1,49 @@
+#include "PMTResponse3inchR12199_02.h"
+
+#include "Configuration.h"
+
+#include <map>
+
+using std::map;
+
+PMTResponse3inchR12199_02::PMTResponse3inchR12199_02(int seed, const string &pmtname)
+{
+    this->Initialize(seed, pmtname);
+}
+
+PMTResponse3inchR12199_02::PMTResponse3inchR12199_02()
+{
+}
+
+PMTResponse3inchR12199_02::~PMTResponse3inchR12199_02()
+{
+}
+
+void PMTResponse3inchR12199_02::Initialize(int seed, const string &pmtname)
+{
+    fPMTType = pmtname;
+    fRand = new MTRandom(seed);
+
+    map<string, string> s;
+    s["ScalFactorTTS"] = "ScalFactorTTS";
+    s["SPECDFFile"] = "SPECDFFile";
+    if( fPMTType!="" )
+    {
+        map<string, string>::iterator i;
+        for(i=s.begin(); i!=s.end(); i++)
+        {
+            i->second += "_" + fPMTType;
+        }
+    }
+    Configuration *Conf = Configuration::GetInstance();
+    Conf->GetValue<float>(s["ScalFactorTTS"], fSclFacTTS);
+    Conf->GetValue<string>(s["SPECDFFile"], fTxtFileSPECDF);
+    this->LoadCDFOfSPE(fTxtFileSPECDF);
+}
+
+float PMTResponse3inchR12199_02::HitTimeSmearing(float Q)
+{
+    float timingResolution = 0.5*fSclFacTTS*(0.33 + sqrt(fTResConstant/Q));
+    if( timingResolution<fTResMinimum ){ timingResolution = fTResMinimum; }
+    return fRand->Gaus(0.0,timingResolution);
+}
