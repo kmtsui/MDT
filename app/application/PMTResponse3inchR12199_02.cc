@@ -3,6 +3,7 @@
 #include "Configuration.h"
 
 #include <map>
+#include <math.h> 
 
 using std::map;
 

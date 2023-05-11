@@ -1,0 +1,6 @@
+# objects and libraries
+*.so
+*.o
+
+# binary
+appWCTESingleEvent
