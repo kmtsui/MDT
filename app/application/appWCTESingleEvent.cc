@@ -1,6 +1,6 @@
 // This is a MDT application for WCTE single event
 // This takes true hits in the input file that is an output of WCTE-WCSim 
-// and degitize those hits with the same method as used in WCSim (i.e. /DAQ/Digitizer SKI)
+// and digitize those hits with the same method as used in WCSim (i.e. /DAQ/Digitizer SKI)
 // Optionally, dark hits can be added to the true hits before the digitization is done.
 // In addition, the same triggering algorithm as implemeted in WCSim (i.e. /DAQ/Trigger NDigits)
 // The output of this code is a ROOT file which has the same format of the input file
@@ -59,8 +59,10 @@ int main(int argc, char **argv)
 	// Create TTrees to be saved in the output file
     outData->CreateTree(fOutFileName.c_str(), listWCRootEvt);
 
-    const int nEntries = inData->GetEntries();
+    int nEntries = inData->GetEntries();
     const float toffset = 0.; // for IWCD pile-up event generation -> just ignore
+
+    if (fNEvtToProc>0 && fNEvtToProc<nEntries) nEntries = fNEvtToProc;
 
     cout<<" Start processing " << nEntries <<" entries........ " <<endl;
     for(int iEntry=0; iEntry<nEntries; iEntry++)

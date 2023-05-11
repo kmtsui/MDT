@@ -29,4 +29,4 @@
 < PrecisionTiming = 0.1 > // ns
 < PrecisionCharge = 0. >
 
-< SPECDFFile_PMT3inchR12199_02 = /home/hep/rakutsu/t2k/wcte/mdt_4_wcte/MDT/parameter/SPE_CDF_PMT3inchR12199_02.txt >
+< SPECDFFile_PMT3inchR12199_02 = ./parameter/SPE_CDF_PMT3inchR12199_02.txt >

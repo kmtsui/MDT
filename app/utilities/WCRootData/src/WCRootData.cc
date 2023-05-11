@@ -3,8 +3,6 @@
 
 #include "TBranch.h"
 
-#define HYBRIDWCSIM // need a better way to switch it on and off
-
 WCRootData::WCRootData()
 {
     fDetCentreY = 0.;

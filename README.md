@@ -13,3 +13,20 @@ The library provides C++ classes that manage three tasks:
  - Triggering digitized hits
     - A simple algorithm that counts number of digitized hits falling in a sliding time winodw
     - Selectable trigger window and thershold
+
+##WCTE/WCSim usage
+Simple runtime procedures. First set up your ROOT and WCSIM:
+```
+source your_thisroot.sh
+export WCSIMDIR=your_WCSIM_installation
+```
+Then set up the MDT environment.
+```
+source envMDT.sh
+cd $MDTROOT/cpp; make clean; make all
+cd $MDTROOT/app/utilities/WCRootData; make clean; make all
+cd $MDTROOT/app/application; make appWCTESingleEvent
+cd $MDTROOT
+# edit variables properly in run_test_mdt4wcte.sh
+bash run_test_mdt4wcte.sh
+```
