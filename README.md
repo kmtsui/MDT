@@ -14,7 +14,7 @@ The library provides C++ classes that manage three tasks:
     - A simple algorithm that counts number of digitized hits falling in a sliding time winodw
     - Selectable trigger window and thershold
 
-##WCTE/WCSim usage
+## WCTE/WCSim usage
 Simple runtime procedures. First set up your ROOT and WCSIM:
 ```
 source your_thisroot.sh
