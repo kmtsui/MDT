@@ -5,7 +5,7 @@
 < NDigitsStepSize = 5 >
 < NDigitsPostTriggerWindow = +950. >
 < NDigitsPreTriggerWindow = -400. >
-< FailurePostTriggerWindow = +100000. >
+< FailurePostTriggerWindow = +100000. > # seems to be +950 by default
 < FailurePreTriggerWindow = -400. >
 < FailureTime = 100. >
 
@@ -26,7 +26,7 @@
 
 # Digitizer setting
 < DigiHitIntegrationWindow = 200 >  // ns
-< PrecisionTiming = 0.1 > // ns
+< PrecisionTiming = 0.1 > // ns  # 0.4?
 < PrecisionCharge = 0. >
 
 < SPECDFFile_PMT3inchR12199_02 = ./parameter/SPE_CDF_PMT3inchR12199_02.txt >
