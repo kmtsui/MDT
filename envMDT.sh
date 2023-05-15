@@ -56,7 +56,7 @@ if [[ -z "${WCSIMDIR}" ]]; then
 	echo "WCSIMDIR not set. Exit!"
 	return 
 else
-	echo "Using ROOT installed in $WCSIMDIR"
+	echo "Using WCSIM installed in $WCSIMDIR"
 	export LD_LIBRARY_PATH=${WCSIMDIR}:$LD_LIBRARY_PATH
 fi
 

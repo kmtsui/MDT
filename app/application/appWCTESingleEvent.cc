@@ -4,7 +4,7 @@
 // Optionally, dark hits can be added to the true hits before the digitization is done.
 // In addition, the same triggering algorithm as implemeted in WCSim (i.e. /DAQ/Trigger NDigits)
 // The output of this code is a ROOT file which has the same format of the input file
-// The digitized hits in the ouput file should be consistent with the ones in the input file
+// The digitized hits in the output file should be consistent with the ones in the input file
 // wihtin a statistical fluctuation (, provided that the impelementation in MDT is exactly the same as in WCSim)
 
 #include <iostream>

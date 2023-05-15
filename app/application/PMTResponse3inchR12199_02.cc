@@ -26,6 +26,8 @@ void PMTResponse3inchR12199_02::Initialize(int seed, const string &pmtname)
     fRand = new MTRandom(seed);
 
     map<string, string> s;
+    s["TimingResConstant"] = "TimingResConstant";
+    s["TimingResMinimum"] = "TimingResMinimum"; 
     s["ScalFactorTTS"] = "ScalFactorTTS";
     s["SPECDFFile"] = "SPECDFFile";
     if( fPMTType!="" )
@@ -37,6 +39,8 @@ void PMTResponse3inchR12199_02::Initialize(int seed, const string &pmtname)
         }
     }
     Configuration *Conf = Configuration::GetInstance();
+    Conf->GetValue<float>(s["TimingResConstant"], fTResConstant);
+    Conf->GetValue<float>(s["TimingResMinimum"], fTResMinimum);
     Conf->GetValue<float>(s["ScalFactorTTS"], fSclFacTTS);
     Conf->GetValue<string>(s["SPECDFFile"], fTxtFileSPECDF);
     this->LoadCDFOfSPE(fTxtFileSPECDF);
@@ -44,6 +48,7 @@ void PMTResponse3inchR12199_02::Initialize(int seed, const string &pmtname)
 
 float PMTResponse3inchR12199_02::HitTimeSmearing(float Q)
 {
+    Q = (Q > 0.5) ? Q : 0.5;
     float timingResolution = 0.5*fSclFacTTS*(0.33 + sqrt(fTResConstant/Q));
     if( timingResolution<fTResMinimum ){ timingResolution = fTResMinimum; }
     return fRand->Gaus(0.0,timingResolution);
