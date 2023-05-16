@@ -207,8 +207,9 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
 
 #ifdef HYBRIDWCSIM
         vector<Double_t> info(1, ti->GetNHits(iTrig));
-#endif
+#else
         vector<Float_t> info(1, ti->GetNHits(iTrig));
+#endif
         anEvent->SetTriggerInfo(trigType, info);
 
         const float triggerTime = ti->GetTriggerTime(iTrig);

@@ -35,6 +35,8 @@ class Configuration
         template <typename T> T GetValue(string);
         template <typename T> void GetValue(string, T&);
 
+        string ParseMDTROOT(string);
+
     protected :
         Configuration();
 
