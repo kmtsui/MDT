@@ -35,7 +35,14 @@ if [ -n "${MDTROOT}" ] ; then
 	fi
 fi
 
-export MDTROOT=`pwd`
+if [ "x${BASH_ARGV[0]}" = "x" ]; then
+    MDTROOT="$PWD"; export MDTROOT
+else
+    # get param to "."
+    thismdtroot=$(dirname ${BASH_ARGV[0]})
+    MDTROOT=$(cd ${thismdtroot} > /dev/null;pwd); export MDTROOT
+fi
+
 if [[ -z "${LD_LIBRARY_PATH}" ]]; then
 	export LD_LIBRARY_PATH=$MDTROOT/cpp
 else
@@ -81,4 +88,5 @@ echo "MDTROOT=$MDTROOT"
 echo "WCRDROOT=$WCRDROOT"
 
 unset old_mdtroot
+unset thismdtroot
 unset -f drop_from_path
