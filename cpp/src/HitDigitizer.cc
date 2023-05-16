@@ -48,7 +48,6 @@ void HitDigitizer::DigitizeTube(HitTube *aHT, PMTResponse *pr)
 
     double intgr_srt = (double)PEs[0]->GetTime();
     double intgr_end = intgr_srt+fIntegWindow;
-    int nDigi = 0;
     vector<int> parent_composition;  
     parent_composition.clear();
 
@@ -66,7 +65,7 @@ void HitDigitizer::DigitizeTube(HitTube *aHT, PMTResponse *pr)
 
             isAlive = true;
             if (fApplyEff ){ this->ApplyThreshold(digiQ, isAlive); }
-            if( isAlive && nDigi==0 ) // why need nDigi==0? // want a digitizer deadtime?
+            if( isAlive ) 
             {
                 tSmeared = pr->HitTimeSmearing(digiQ);
                 digiQ *= fEfficiency;
@@ -74,7 +73,6 @@ void HitDigitizer::DigitizeTube(HitTube *aHT, PMTResponse *pr)
                 digiQ = this->DoTruncate(digiQ, fPrecisionCharge);
                 digiT = this->DoTruncate(digiT, fPrecisionTiming);
                 aHT->AddDigiHit(digiT, digiQ, parent_composition);
-                //nDigi += 1;
             }
             sumSPE = 0.;
             parent_composition.clear(); 
