@@ -6,6 +6,7 @@
 #include <utility>
 #include <algorithm>
 #include <map>
+#include <string>
 
 #include "MTRandom.h"
 #include "HitTubeCollection.h"
@@ -16,6 +17,7 @@ using std::endl;
 using std::vector;
 using std::pair;
 using std::map;
+using std::string;
 
 class HitDigitizer;
 class PMTResponse;
@@ -23,7 +25,7 @@ class PMTResponse;
 class PMTNoise 
 {
     public :
-        PMTNoise(const int);
+        PMTNoise(const int, const string &s="");
         virtual ~PMTNoise();
 
         void SetNumberOfPMTs(const int);
@@ -64,4 +66,6 @@ class PMTNoise
         vector<double> fNoiseTime;
 
         PMTAfterpulse *fAftpulse;
+
+        string fPMTType;
 };

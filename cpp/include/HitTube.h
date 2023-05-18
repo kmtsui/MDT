@@ -17,11 +17,10 @@
 #pragma once
 
 #include <vector>
-#include <utility>
 #include <algorithm>
 
+#include "TrueHit.h"
 using std::vector;
-using std::pair;
 
 class HitTube
 {
@@ -30,12 +29,34 @@ class HitTube
         virtual ~HitTube();
         void SetTubeID(const int i){ fTubeID = i; }
         int GetTubeID() const { return fTubeID; }
+		float GetPosition(int i) const { return fPosition[i]; }
+		float GetOrientation(int i) const { return fOrientation[i]; }
+		void SetPosition(int i, float f) { fPosition[i] = f; }
+		void SetOrientation(int i, float f) { fOrientation[i] = f; }
+
 
         void AddRawPE(const float t, const int id=9999999)
             { 
-                fPhotoElectrons.push_back(pair<float, int>(t, id));
+                fPhotoElectrons.push_back(new TrueHit(t, id));
                 fNRawPE+=1; 
             }
+        void AddRawPE(TrueHit* th)
+            { 
+                fPhotoElectrons.push_back(th);
+                fNRawPE+=1; 
+            }
+        int GetNRawPE() const { return fNRawPE; }
+        float GetTimeRaw(const int i) const { return fPhotoElectrons[i]->GetTime(); }
+        void SortTrueHits()
+        {
+            std::sort(fPhotoElectrons.begin(),
+              fPhotoElectrons.end(), 
+              [](const TrueHit* left, const TrueHit* right)
+              { return left->GetTime() < right->GetTime(); }
+             );
+        }
+        const vector<TrueHit*>& GetPhotoElectrons() const { return fPhotoElectrons; }
+
         void AddDigiHit(const float t, const float q, const vector<int> &id=vector<int>())
             {
                 fTimeDigi.push_back( t );
@@ -43,19 +64,6 @@ class HitTube
                 fParentCompDigi.push_back( id );
                 fNDigiHits+=1;
             }
-
-        int GetNRawPE() const { return fNRawPE; }
-        float GetTimeRaw(const int i) const { return fPhotoElectrons[i].first; }
-        void SortTrueHits()
-        {
-            std::sort(fPhotoElectrons.begin(),
-              fPhotoElectrons.end(), 
-              [](const pair<float, int> &left, const pair<float,int> &right)
-              { return left.first < right.first; }
-             );
-        }
-        const vector<pair<float,int>>& GetPhotoElectrons() const { return fPhotoElectrons; }
-
 
         int GetNDigiHits() const { return fNDigiHits; }
         float GetTimeDigi(const int i) const { return fTimeDigi[i]; }
@@ -65,10 +73,12 @@ class HitTube
         
     private:
         int fNRawPE;
-        vector<pair<float, int>> fPhotoElectrons;
+        vector<TrueHit*> fPhotoElectrons;
 
         int fTubeID;
         int fNDigiHits;
+		float fPosition[3];
+		float fOrientation[3];
         vector<float> fTimeDigi;
         vector<float> fChargeDigi;
         vector<vector<int>> fParentCompDigi;

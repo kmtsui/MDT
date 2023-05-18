@@ -26,6 +26,7 @@ class HitDigitizer
         float fPrecisionTiming;
         float fEfficiency;
         float fIntegWindow;
-
+        int fApplyEff;
+    
         MTRandom *fRand;
 };

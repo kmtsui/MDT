@@ -2,11 +2,14 @@
 
 #include <iostream>
 #include <map>
+#include <string>
+
 #include "HitTube.h"
 
 using std::cout;
 using std::endl;
 using std::map;
+using std::string;
 
 class HitTubeCollection
 {
@@ -31,8 +34,8 @@ class HitTubeCollection
         HitTube& operator [](int id) { return *fPHs[id]; }         
 
 		const vector<int>& GetHitTubeIDList() const { return fTubeList; }
-    private: 
 
+    private: 
         map<int, HitTube*> fPHs;
         map<int, HitTube*>::iterator fItr;
 		vector<int> fTubeList;

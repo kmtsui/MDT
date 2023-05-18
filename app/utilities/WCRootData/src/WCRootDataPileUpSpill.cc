@@ -94,7 +94,7 @@ void WCRootDataPileUpSpill::FillTree()
     fPupSpillT->Fill();
     fPupSpillT->Write("", TObject::kOverwrite);
 
-    fSpEvt->ReInitialize();
+    fSpEvt[0]->ReInitialize();
     fPupSpill.Clear();
     
     fCurSpill += 1;
@@ -133,7 +133,7 @@ void WCRootDataPileUpSpill::AddInteraction(const WCRootDataNuInt *aNuInt,
     this->AddTracks(aNuInt->GetTrigger(0), offset_time);
 
     const int iFirst = fPupSpill.NTracks;
-    const int nTrackTmp = ((TClonesArray*)fSpEvt->GetTrigger(0)->GetTracks())->GetEntries();
+    const int nTrackTmp = ((TClonesArray*)fSpEvt[0]->GetTrigger(0)->GetTracks())->GetEntries();
     for(int i=iFirst; i<nTrackTmp; i++)
     {
         fPupSpill.TrackNuIntIdx[i] = fPupSpill.NNuIntTot;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include "HitTube.h"
 #include "PMTNoise.h"
 #include "HitTubeCollection.h"
@@ -8,6 +10,9 @@
 #include "TriggerAlgo.h"
 #include "Configuration.h"
 #include "PMTAfterpulse.h"
+#include "MTRandom.h"
+
+using std::map;
 
 class MDTManager
 {
@@ -15,23 +20,30 @@ class MDTManager
         MDTManager(int seed=78923);
         virtual ~MDTManager();
 
-        HitTubeCollection* GetHitTubeCollection() { return fPHC; }
-        TriggerInfo* GetTriggerInfo() { return fTrigInfo; }
+        HitTubeCollection* GetHitTubeCollection(const string &s="Def") { return fPHC[s]; }
+        TriggerInfo* GetTriggerInfo(const string &s="Def") { return fTrigInfo[s]; }
         
-        void DoAddDark();
-        void DoDigitize();   
-        void DoTrigger();
-        void DoInitialize();
-        void DoAddAfterpulse();
+        void RegisterPMTType(const string &s="Def", PMTResponse *p=0);
 
-        void SetHitTubeCollection(HitTubeCollection*);
+        void DoInitialize();
+        void DoAddDark(const string &s="Def");
+        void DoDigitize(const string &s="Def");   
+        void DoTrigger(const string &s="Def");
+        void DoAddAfterpulse(const string &s="Def");
+        
+        void SetHitTubeCollection(HitTubeCollection*, const string &s="Def");
+        bool HasThisPMTType(const string&);
+
+        PMTResponse* GetPMTResponse(const string &s="Def") { return fPMTResp[s]; }
 
     private:
         TriggerAlgo *fTrigAlgo;
-        TriggerInfo *fTrigInfo;
         HitDigitizer *fDgtzr;
-        PMTResponse *fPMTResp;
-        PMTNoise *fDark;
-        HitTubeCollection *fPHC; 
-        PMTAfterpulse *fAftpulse;
+        MTRandom *fRndm;
+
+        map<string, TriggerInfo*> fTrigInfo;
+        map<string, PMTResponse*> fPMTResp;
+        map<string, PMTNoise*> fDark;
+        map<string, HitTubeCollection*> fPHC; 
+        string fDefName;
 };

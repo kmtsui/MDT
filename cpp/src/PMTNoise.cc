@@ -4,7 +4,7 @@
 #include "HitDigitizer.h"
 #include "PMTResponse.h"
 
-PMTNoise::PMTNoise(const int seed) :
+PMTNoise::PMTNoise(const int seed, const string &pmtname) :
 fNPMTs( 10184 ),
 fMinTubeID( 1 ),
 fMaxTubeID( 10184 ),
@@ -14,7 +14,8 @@ fWindow( 4000. ),
 fDarkRate( 1. ),
 fConvRate( 1.126 ),
 fDarkMode( 1 ),
-fNnoise( 0 )
+fNnoise( 0 ),
+fPMTType( pmtname )
 {
     fRand = new MTRandom(seed);
     fAftpulse = new PMTAfterpulse();
@@ -22,15 +23,35 @@ fNnoise( 0 )
     fNoisePMT.clear();
     fNoiseTime.clear();
 
+    map<string, string> s;
+    s["DarkAddMode"] = "DarkAddMode";
+    s["DarkRate"] = "DarkRate";
+    s["DarkM0WindowLow"] = "DarkM0WindowLow";
+    s["DarkM0WindowUp"] = "DarkM0WindowUp";
+    s["DarkM1Window"] = "DarkM1Window";
+    s["NumOfTubes"] = "NumOfTubes";
+    s["MinTubeID"] = "MinTubeID";
+    s["MaxTubeID"] = "MaxTubeID";
+
+    if( fPMTType!="" )
+    {
+        map<string, string>::iterator i;
+        for(i=s.begin(); i!=s.end(); i++)
+        {
+            i->second += "_" + fPMTType;
+        }
+    }
+
     Configuration *Conf = Configuration::GetInstance();
-    Conf->GetValue<int>("DarkAddMode", fDarkMode);
-    Conf->GetValue<float>("DarkRate", fDarkRate);
-    Conf->GetValue<float>("DarkM0WindowLow", fWinLow);
-    Conf->GetValue<float>("DarkM0WindowUp", fWinUp);
-    Conf->GetValue<float>("DarkM1Window", fWindow);
-	Conf->GetValue<int>("NumOfTubes", fNPMTs);
-	Conf->GetValue<int>("MinTubeID", fMinTubeID);
-	Conf->GetValue<int>("MaxTubeID", fMaxTubeID);
+    Conf->GetValue<int>(s["DarkAddMode"], fDarkMode);
+    Conf->GetValue<float>(s["DarkRate"], fDarkRate);
+    Conf->GetValue<float>(s["DarkM0WindowLow"], fWinLow);
+    Conf->GetValue<float>(s["DarkM0WindowUp"], fWinUp);
+    Conf->GetValue<float>(s["DarkM1Window"], fWindow);
+	Conf->GetValue<int>(s["NumOfTubes"], fNPMTs);
+	Conf->GetValue<int>(s["MinTubeID"], fMinTubeID);
+	Conf->GetValue<int>(s["MaxTubeID"], fMaxTubeID);
+
 }
 
 PMTNoise::~PMTNoise()
@@ -204,7 +225,7 @@ void PMTNoise::Add(HitTubeCollection *hc, double tWinLow, double tWinUp)
         float time = this->GetNoiseTime(k); 
 		hc->AddTrueHit(tubeID, time, -1);
     }
-    cout<<" NumCkovPE(dark PE): " << nDarkHits <<endl;
+    //cout<<" NumCkovPE(dark PE): " << nDarkHits <<endl;
 }
 
 

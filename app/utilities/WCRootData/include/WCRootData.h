@@ -33,10 +33,10 @@ class WCRootData
         WCRootData();
         virtual ~WCRootData();
 
-        void ReadFile(const char *);
+        void ReadFile(const char*, const vector<string> &v=vector<string>());
         void CloseFile();
 
-        void CreateTree(const char*);
+        void CreateTree(const char*, const vector<string> &v=vector<string>());
         virtual void FillTree();
         virtual void WriteTree();
 
@@ -47,18 +47,20 @@ class WCRootData
         int GetEntries();
         void GetEntry(int);
 
-        WCSimRootTrigger *GetTrigger(int i) const { return fSpEvt->GetTrigger(i); }
+        WCSimRootTrigger *GetTrigger(int i, int iPMT=0) const { return fSpEvt[iPMT]->GetTrigger(i); }
 
-        void AddTrueHitsToMDT(MDTManager*, float offset_time=0.);
-        void AddDigiHits(MDTManager*, int event_id=0);
-        void AddTracks(const WCSimRootTrigger*, float offset_time=0.);
+        void AddTrueHitsToMDT(MDTManager*);
+        void AddTrueHitsToMDT(HitTubeCollection*, PMTResponse*, float offset_time=0., int iPMT=0);
+        void AddDigiHits(MDTManager*, int event_id=0, int iPMT=0);
+        void AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int even_it=0, int iPMT=0);
+        void AddTracks(const WCSimRootTrigger*, float offset_time=0., int iPMT=0);
 
         const char *GetCurrentInputFileName() const { return fWCSimC->GetFile()->GetName(); }
 
     protected:
         TChain *fWCSimC;
         TTree *fWCSimT;
-        WCSimRootEvent *fSpEvt;
+        vector<WCSimRootEvent*> fSpEvt;
         WCSimRootGeom *fWCGeom;
 
         Float_t fDetCentreY;
@@ -67,6 +69,7 @@ class WCRootData
         bool fMultDigiHits;
 
     private:
+		void SetTubes(HitTubeCollection*, const int);
         TString fOutFileName;
 };
 

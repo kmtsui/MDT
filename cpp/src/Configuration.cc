@@ -1,5 +1,7 @@
 #include "Configuration.h"
 
+#include <stdlib.h>
+
 Configuration* Configuration::fTheInstance=0;
 
 Configuration::Configuration()
@@ -25,6 +27,7 @@ Configuration* Configuration::GetInstance()
 void Configuration::AddValue(string name, string svalue)
 {
     Value_t aVal;
+    svalue = ParseMDTROOT(svalue);
     aVal.i = atoi( svalue.c_str() );
     aVal.f = atof( svalue.c_str() );
     aVal.s = svalue;
@@ -68,6 +71,7 @@ template <> void Configuration::GetValue<string>(string name, string &t)
 void Configuration::ReadParameter(string infilename)
 {
 // Array parameter is not supported yet
+    infilename = ParseMDTROOT(infilename);
     ifstream fin(infilename);
     if( !fin.is_open() )
     {
@@ -128,4 +132,22 @@ bool Configuration::IsAvailable(string &sName, bool forceexit)
     }
     else{ tmp = true; }
     return tmp;
+}
+
+string Configuration::ParseMDTROOT(string filename)
+{
+    std::size_t found = filename.find("$MDTROOT");
+    if (found!=string::npos)
+    {
+        if (std::getenv("MDTROOT")) filename.replace(found,8,std::getenv("MDTROOT"));
+        else
+        {
+            cout<<" [ERROR] Configuration::ParseMDTROOT" <<endl;
+            cout<<"  $MDTROOT is not set " <<endl;
+            cout<<"  -> EXIT" <<endl;
+            exit(-1);
+        }
+    }
+
+    return filename;
 }
