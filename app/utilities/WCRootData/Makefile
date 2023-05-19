@@ -5,6 +5,9 @@ CXXFLAGS += -Wall -O2 -std=c++11 -g -fPIC -I./include $(shell root-config --cfla
 ifeq ($(HYBRIDWCSIM),1)
 CXXFLAGS += -DHYBRIDWCSIM
 endif
+ifeq ($(IWCDWCSIM),1)
+CXXFLAGS += -DIWCDWCSIM
+endif
 #LDFLAGS += -shared $(shell root-config --ldflags) $(shell root-config --libs) -lTreePlayer -lMinuit2 -L$(WCSIMDIR) -lWCSimRoot -L${MDTROOT}/cpp -lMDT
 LDFLAGS += -shared $(shell root-config --ldflags) $(shell root-config --libs) -L$(WCSIMDIR) -lWCSimRoot -L${MDTROOT}/cpp -lMDT
 

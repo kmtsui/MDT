@@ -295,7 +295,7 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
         Int_t     stopvol = aTrack->GetStopvol();
         Int_t     parenttype = aTrack->GetParenttype();
         Int_t     id = aTrack->GetId();
-#ifdef HYBRIDWCSIM
+#if defined HYBRIDWCSIM || defined IWCDWCSIM
         Int_t     idPrnt = aTrack->GetParentId();
 #endif
 
@@ -327,7 +327,7 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
             start[j] = aTrack->GetStart(j);
         }
 
-#ifdef HYBRIDWCSIM
+#if defined HYBRIDWCSIM || defined IWCDWCSIM
         aEvtOut->AddTrack(ipnu, 
 			  flag, 
 			  m, 
@@ -360,20 +360,20 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
 			  id);
 #endif
 
-  WCSimRootTrack         *AddTrack(Int_t ipnu, 
-				   Int_t flag, 
-				   Float_t m, 
-				   Float_t p, 
-				   Float_t E, 
-				   Int_t startvol, 
-				   Int_t stopvol, 
-				   Float_t dir[3], 
-				   Float_t pdir[3], 
-				   Float_t stop[3],
-				   Float_t start[3],
-				   Int_t parenttype,
-				   Float_t time,
-				   Int_t id);
+//   WCSimRootTrack         *AddTrack(Int_t ipnu, 
+// 				   Int_t flag, 
+// 				   Float_t m, 
+// 				   Float_t p, 
+// 				   Float_t E, 
+// 				   Int_t startvol, 
+// 				   Int_t stopvol, 
+// 				   Float_t dir[3], 
+// 				   Float_t pdir[3], 
+// 				   Float_t stop[3],
+// 				   Float_t start[3],
+// 				   Int_t parenttype,
+// 				   Float_t time,
+// 				   Int_t id);
 
 
     }

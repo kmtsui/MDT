@@ -83,6 +83,18 @@ else
 	export HYBRIDWCSIM=1
 fi
 
+#--- Option to read IWCD WCSIM files
+if [[ -z "${IWCDWCSIM}" ]]; then
+	echo "IWCDWCSIM not set. Default to 0"
+	export IWCDWCSIM=0
+elif [[ $IWCDWCSIM -eq 0 ]]; then
+	echo "IWCDWCSIM set to 0"
+	export IWCDWCSIM=0
+else
+	echo "IWCDWCSIM set to 1"
+	export IWCDWCSIM=1
+fi
+
 echo "Setup complete!"
 echo "MDTROOT=$MDTROOT"
 echo "WCRDROOT=$WCRDROOT"

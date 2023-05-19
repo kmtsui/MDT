@@ -30,3 +30,19 @@ cd $MDTROOT
 # edit variables properly in run_test_mdt4wcte.sh
 bash run_test_mdt4wcte.sh
 ```
+
+## IWCD/WCSim usage
+To run MDT on files from `/disk1/disk01/usr5/rakutsu/iwcd/neutron/beam/MassProNov2020_sukap/files/wcsim_root/NuMode/2p39/`,
+```
+source /disk01/usr5/kmtsui/root_v6.22.06/bin/thisroot.sh
+export WCSIMDIR=/disk01/usr5/kmtsui/WCSimIWCD_solidworks_cedar/
+export IWCDWCSIM=1
+
+source envMDT.sh
+cd $MDTROOT/cpp; make clean; make all
+cd $MDTROOT/app/utilities/WCRootData; make clean; make all
+cd $MDTROOT/app/application; make appWCTESingleEvent
+cd $MDTROOT
+# edit variables properly in run_test_mdt4wcte.sh
+bash run_test_mdt4iwcd.sh
+```
