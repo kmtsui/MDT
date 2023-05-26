@@ -11,6 +11,8 @@ HitTube::HitTube(int id)
     fParentCompDigi.clear();
 
     fTubeID = id;
+
+    hDigiWF = nullptr;
 }
 
 
@@ -23,4 +25,6 @@ HitTube::~HitTube()
     vector<float>().swap( fTimeDigi );
     vector<float>().swap( fChargeDigi );
     vector<vector<int>>().swap( fParentCompDigi );
+
+    if(hDigiWF != nullptr) delete hDigiWF;
 }

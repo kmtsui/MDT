@@ -47,3 +47,4 @@
 
 
 < SPECDFFile_PMT3inchR12199_02 = $MDTROOT/parameter/SPE_CDF_PMT3inchR12199_02.txt >
+< WaveformFile = $MDTROOT/parameter/LC-gauss.txt >

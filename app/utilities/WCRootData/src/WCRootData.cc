@@ -176,6 +176,10 @@ void WCRootData::CreateTree(const char *filename, const vector<string> &list)
             TBranch *branch = fWCSimT->Branch(list[i].c_str(), bAddress, &fSpEvt[i], bufferSize, 2);
         }
     }
+
+    fWCSimDigiWFT = new TTree("wcsimDigiWFTree","Digitized waveform for each PMT");
+    fDigiWF = new TClonesArray("TH1F");
+    fWCSimDigiWFT->Branch("wcsimDigiWF",&fDigiWF);
 }
 
 void WCRootData::AddDigiHits(MDTManager *mdt, int eventID, int iPMT)
@@ -265,6 +269,16 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
         WCSimRootEventHeader *eh = anEvent->GetHeader();
         eh->SetDate( int(triggerTime) );
     }
+
+    TClonesArray &fDigiWFarray = *fDigiWF;
+    for(hc->Begin(); !hc->IsEnd(); hc->Next())
+    {
+        HitTube *aPH = &(*hc)();
+        if (aPH->GetDigiWF())
+            new(fDigiWFarray[aPH->GetTubeID()-1]) TH1F(*(aPH->GetDigiWF()));
+        else new(fDigiWFarray[aPH->GetTubeID()-1]) TH1F();
+        aPH = NULL;
+    } // PMT loop
 }
 
 void WCRootData::FillTree()
@@ -278,6 +292,8 @@ void WCRootData::FillTree()
     {
         fSpEvt[i]->ReInitialize();
     }
+    fWCSimDigiWFT->Fill();
+    fDigiWF->Clear();
 }
 
 
@@ -384,6 +400,7 @@ void WCRootData::WriteTree()
     TFile *f = fWCSimT->GetCurrentFile();
     f->cd();
     fWCSimT->Write();
+    fWCSimDigiWFT->Write();
     f->Close();
 }
 
