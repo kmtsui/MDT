@@ -70,6 +70,7 @@ class WCRootData
 
         TTree *fWCSimDigiWFT;
         TClonesArray* fDigiWF;
+        TClonesArray* fDigiWF2;
 
         TTree *fWCSimDigiPulls;
         float fPullQ;

@@ -187,6 +187,10 @@ void WCRootData::CreateTree(const char *filename, const vector<string> &list)
     fWCSimDigiWFT = new TTree("wcsimDigiWFTree","Digitized waveform for each PMT");
     fDigiWF = new TClonesArray("TH1F");
     fWCSimDigiWFT->Branch("wcsimDigiWF",&fDigiWF);
+#ifdef HYBRIDWCSIM
+    fDigiWF2 = new TClonesArray("TH1F");
+    fWCSimDigiWFT->Branch("wcsimDigiWF2",&fDigiWF2);
+#endif
     fWCSimDigiPulls = new TTree("WCSimDigiPulls","Time and charge pulls of digitized hits");
     fWCSimDigiPulls->Branch("PullQ",&fPullQ);
     fWCSimDigiPulls->Branch("PullT",&fPullT);
@@ -279,8 +283,13 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
         WCSimRootEventHeader *eh = anEvent->GetHeader();
         eh->SetDate( int(triggerTime) );
     }
-
+#ifdef HYBRIDWCSIM
+    TClonesArray &fDigiWFarray;
+    if (!bool(iPMT)) fDigiWFarray = *fDigiWF;
+    else fDigiWFarray = *fDigiWF2;
+#else
     TClonesArray &fDigiWFarray = *fDigiWF;
+#endif
     for(hc->Begin(); !hc->IsEnd(); hc->Next())
     {
         HitTube *aPH = &(*hc)();
@@ -309,6 +318,9 @@ void WCRootData::FillTree()
     }
     fWCSimDigiWFT->Fill();
     fDigiWF->Clear();
+#ifdef HYBRIDWCSIM
+    fDigiWF2->Clear();
+#endif
 }
 
 
