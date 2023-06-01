@@ -4,8 +4,12 @@ MDTManager::MDTManager(int seed)
 {
     fRndm = new MTRandom( seed );
     fTrigAlgo = new TriggerAlgo();
-    //fDgtzr = new HitDigitizer( fRndm->Integer(1000000) );
-    fDgtzr = new HitDigitizer_mPMT( fRndm->Integer(1000000) );
+    
+    Configuration *Conf = Configuration::GetInstance();
+    int UsemPMTDigitizer = 0;
+    Conf->GetValue<int>("UsemPMTDigitizer", UsemPMTDigitizer);
+    if (!UsemPMTDigitizer) fDgtzr = new HitDigitizer( fRndm->Integer(1000000) );
+    else fDgtzr = new HitDigitizer_mPMT( fRndm->Integer(1000000) );
 
     fPMTResp.clear();
     fDark.clear();

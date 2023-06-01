@@ -46,4 +46,8 @@ class HitDigitizer_mPMT : public HitDigitizer
 
     private:
         TH1F* hWF;
+        float fDt;
+        float fWaveformOffset;
+        float fADCToPE;
+        float fSigmaGuess;
 };

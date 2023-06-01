@@ -150,8 +150,17 @@ double HitDigitizer::DoTruncate(const double x, const double precision)
 HitDigitizer_mPMT::HitDigitizer_mPMT(int seed) : HitDigitizer(seed)
 {
     hWF = nullptr;
-    string fTxtFileWF;
+    fDt = 8;
+    fWaveformOffset = 95;
+    fADCToPE = 108;
+    fSigmaGuess = 6;
+
     Configuration *Conf = Configuration::GetInstance();
+    Conf->GetValue<float>("SamplingInterval", fDt);
+    Conf->GetValue<float>("WaveformOffset", fWaveformOffset);
+    Conf->GetValue<float>("ADCToPE", fADCToPE);
+    Conf->GetValue<float>("SigmaGuess", fSigmaGuess);
+
     this->LoadWaveform(Conf->GetValue<string>("WaveformFile"));
 }
 
@@ -272,12 +281,12 @@ void HitDigitizer_mPMT::DigitizeTube(HitTube *aHT, PMTResponse *pr)
 
 TH1F HitDigitizer_mPMT::BuildWavetrain(const vector<TrueHit*> PEs, double waveform_window)
 {
-    double dt = 8; // interval, start, end of sampling
+    double dt = fDt; // interval, start, end of sampling
     double tmin = floor((PEs.front()->GetTime())/dt)*dt;
     double tmax = ceil((PEs.back()->GetTime()+waveform_window)/dt)*dt; 
     TH1F hWT("","",(int)(tmax-tmin)/dt,tmin,tmax);
 
-    double waveform_offset = 95;
+    double waveform_offset = fWaveformOffset;
 
     for(long unsigned int iPE=0; iPE<PEs.size(); iPE++)
     {
@@ -294,19 +303,24 @@ TH1F HitDigitizer_mPMT::BuildWavetrain(const vector<TrueHit*> PEs, double wavefo
         }
     }
 
+    for (int i=1;i<=hWT.GetNbinsX();i++)
+    {
+        hWT.SetBinError(i,1);
+    }
+
     return hWT;
 }
 
 void HitDigitizer_mPMT::FitWavetrain(TH1F hist, double& digiT, double& digiQ)
 {
-    double dt = 8; 
+    double dt = fDt; 
     int maxBin = hist.GetMaximumBin();
     double digiT_guess = hist.GetBinCenter(maxBin);
     double digiQ_guess = hist.GetBinContent(maxBin);
-    double sigma_guess = 6;
+    double sigma_guess = fSigmaGuess;
     double range_min = hist.GetBinLowEdge(maxBin);
     double range_max = hist.GetBinLowEdge(maxBin+1);
-    double adc_to_pe = 108;
+    double adc_to_pe = fADCToPE;
     for (int i=maxBin-1;i>=1;i--)
     {
         if (hist.GetBinContent(i)>0) range_min = hist.GetBinLowEdge(i);
