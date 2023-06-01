@@ -69,8 +69,11 @@ class WCRootData
         bool fMultDigiHits;
 
         TTree *fWCSimDigiWFT;
-        //std::vector<TH1F*> fDigiWF;
         TClonesArray* fDigiWF;
+
+        TTree *fWCSimDigiPulls;
+        float fPullQ;
+        float fPullT;
 
     private:
 		void SetTubes(HitTubeCollection*, const int);

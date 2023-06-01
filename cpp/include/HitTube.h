@@ -82,7 +82,9 @@ class HitTube
         {
             return hDigiWF;
         }
-
+        void SetDigiPulls(float pullT, float pullQ) { fPullT = pullT; fPullQ = pullQ;}
+        float GetPullT() {return fPullT;}
+        float GetPullQ() {return fPullQ;}
         
     private:
         int fNRawPE;
@@ -97,4 +99,6 @@ class HitTube
         vector<vector<int>> fParentCompDigi;
 
         TH1F* hDigiWF;
+        float fPullT; 
+        float fPullQ;
 };

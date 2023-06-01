@@ -1,5 +1,7 @@
 #include "HitDigitizer.h"
 #include "Configuration.h"
+#include "TF1.h"
+#include "TFitResult.h"
         
 HitDigitizer::HitDigitizer(int seed) :
 fPrecisionCharge(0.), 
@@ -204,7 +206,6 @@ void HitDigitizer_mPMT::DigitizeTube(HitTube *aHT, PMTResponse *pr)
 
     // Taken from WCSimWCDigitizerSKI::DigitizeHits
     double sumSPE = 0.;
-    double tSmeared = -9999.;
     bool isAlive = false;
     double digiT = 0.;
     double digiQ = 0.;
@@ -227,25 +228,24 @@ void HitDigitizer_mPMT::DigitizeTube(HitTube *aHT, PMTResponse *pr)
         }
         else
         {
-            digiT = intgr_srt;
-            digiQ = sumSPE;
+
+            TH1F hWT = BuildWavetrain(digiPEs, fIntegWindow);
+            this->FitWavetrain(hWT,digiT,digiQ);
 
             isAlive = true;
             if (fApplyEff ){ this->ApplyThreshold(digiQ, isAlive); }
             if( isAlive ) 
             {
-                tSmeared = pr->HitTimeSmearing(digiQ);
                 digiQ *= fEfficiency;
-                digiT += tSmeared;
                 digiQ = this->DoTruncate(digiQ, fPrecisionCharge);
                 digiT = this->DoTruncate(digiT, fPrecisionTiming);
                 aHT->AddDigiHit(digiT, digiQ, parent_composition);
+                if (!aHT->GetDigiWF()) aHT->SetDigiWF(hWT);
+                aHT->SetDigiPulls(digiT-digiPEs.front()->GetTime(),digiQ-digiPEs.size());
             }
-            TH1F hWT = BuildWavetrain(digiPEs, fIntegWindow);
-            if (!aHT->GetDigiWF()) aHT->SetDigiWF(hWT);
+            digiPEs.clear();
             sumSPE = 0.;
             parent_composition.clear(); 
-            digiPEs.clear();
 
             intgr_srt = PEs[iPE]->GetTime();
             intgr_end = intgr_srt+fIntegWindow;
@@ -255,27 +255,25 @@ void HitDigitizer_mPMT::DigitizeTube(HitTube *aHT, PMTResponse *pr)
         }
     }
 
-    digiT = intgr_srt;
-    digiQ = sumSPE;
-    tSmeared = pr->HitTimeSmearing(digiQ);
+    TH1F hWT = BuildWavetrain(digiPEs, fIntegWindow);
+    this->FitWavetrain(hWT,digiT,digiQ);
     isAlive = true;
     if (fApplyEff ){ this->ApplyThreshold(digiQ, isAlive); }
     if( isAlive )
     {
         digiQ *= fEfficiency;
-        digiT += tSmeared ;
         digiQ = this->DoTruncate(digiQ, fPrecisionCharge);
         digiT = this->DoTruncate(digiT, fPrecisionTiming);
         aHT->AddDigiHit(digiT, digiQ, parent_composition);
+        if (!aHT->GetDigiWF()) aHT->SetDigiWF(hWT);
+        aHT->SetDigiPulls(digiT-digiPEs.front()->GetTime(),digiQ-digiPEs.size());
     }
-    TH1F hWT = BuildWavetrain(digiPEs, fIntegWindow);
-    if (!aHT->GetDigiWF()) aHT->SetDigiWF(hWT);
 }
 
 TH1F HitDigitizer_mPMT::BuildWavetrain(const vector<TrueHit*> PEs, double waveform_window)
 {
-    double dt = 8; // start, end, interval of sampling
-    double tmin = floor((PEs.front()->GetTime()-waveform_window)/dt)*dt;
+    double dt = 8; // interval, start, end of sampling
+    double tmin = floor((PEs.front()->GetTime())/dt)*dt;
     double tmax = ceil((PEs.back()->GetTime()+waveform_window)/dt)*dt; 
     TH1F hWT("","",(int)(tmax-tmin)/dt,tmin,tmax);
 
@@ -297,4 +295,31 @@ TH1F HitDigitizer_mPMT::BuildWavetrain(const vector<TrueHit*> PEs, double wavefo
     }
 
     return hWT;
+}
+
+void HitDigitizer_mPMT::FitWavetrain(TH1F hist, double& digiT, double& digiQ)
+{
+    double dt = 8; 
+    int maxBin = hist.GetMaximumBin();
+    double digiT_guess = hist.GetBinCenter(maxBin);
+    double digiQ_guess = hist.GetBinContent(maxBin);
+    double sigma_guess = 6;
+    double range_min = hist.GetBinLowEdge(maxBin);
+    double range_max = hist.GetBinLowEdge(maxBin+1);
+    double adc_to_pe = 108;
+    for (int i=maxBin-1;i>=1;i--)
+    {
+        if (hist.GetBinContent(i)>0) range_min = hist.GetBinLowEdge(i);
+        else break;
+    }
+    for (int i=maxBin+1;i<=hist.GetNbinsX();i++)
+    {
+        if (hist.GetBinContent(i)>0) range_max = hist.GetBinLowEdge(i+1);
+        else break;
+    }
+    TF1 f1("f1", "gaus", range_min,range_max);
+    f1.SetParameters(digiQ_guess,digiT_guess,sigma_guess);
+    TFitResultPtr r = hist.Fit("f1","S Q N","",range_min,range_max);
+    digiQ = r->Parameter(0)*r->Parameter(2)/adc_to_pe;
+    digiT = r->Parameter(1) - 3*r->Parameter(2) - dt;
 }

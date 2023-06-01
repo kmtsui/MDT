@@ -13,6 +13,8 @@ HitTube::HitTube(int id)
     fTubeID = id;
 
     hDigiWF = nullptr;
+    fPullQ = -99;
+    fPullT = -99;
 }
 
 

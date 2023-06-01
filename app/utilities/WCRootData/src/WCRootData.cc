@@ -20,6 +20,11 @@ WCRootData::WCRootData()
     Conf->GetValue<int>("FlagMultDigits", mult_flag);
 
     fMultDigiHits = bool(mult_flag);
+
+    fWCSimDigiWFT = 0;
+    fWCSimDigiPulls = 0;
+    fPullQ = -99.;
+    fPullT = -99.;
 }
 
 WCRootData::~WCRootData()
@@ -27,6 +32,8 @@ WCRootData::~WCRootData()
     if( fWCGeom ){ delete fWCGeom; fWCGeom = 0; }
     if( fWCSimT ){ delete fWCSimT; fWCSimT = 0; }
     if( fWCSimC ){ delete fWCSimC; fWCSimC = 0; }
+    if( fWCSimDigiWFT ){ delete fWCSimDigiWFT; fWCSimDigiWFT = 0; }
+    if( fWCSimDigiPulls ){ delete fWCSimDigiPulls; fWCSimDigiPulls = 0; }
     fSpEvt.clear();
     fSpEvt.shrink_to_fit();
 }
@@ -180,6 +187,9 @@ void WCRootData::CreateTree(const char *filename, const vector<string> &list)
     fWCSimDigiWFT = new TTree("wcsimDigiWFTree","Digitized waveform for each PMT");
     fDigiWF = new TClonesArray("TH1F");
     fWCSimDigiWFT->Branch("wcsimDigiWF",&fDigiWF);
+    fWCSimDigiPulls = new TTree("WCSimDigiPulls","Time and charge pulls of digitized hits");
+    fWCSimDigiPulls->Branch("PullQ",&fPullQ);
+    fWCSimDigiPulls->Branch("PullT",&fPullT);
 }
 
 void WCRootData::AddDigiHits(MDTManager *mdt, int eventID, int iPMT)
@@ -277,6 +287,11 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
         if (aPH->GetDigiWF())
             new(fDigiWFarray[aPH->GetTubeID()-1]) TH1F(*(aPH->GetDigiWF()));
         else new(fDigiWFarray[aPH->GetTubeID()-1]) TH1F();
+
+        fPullQ = aPH->GetPullQ();
+        fPullT = aPH->GetPullT();
+        fWCSimDigiPulls->Fill();
+
         aPH = NULL;
     } // PMT loop
 }
@@ -401,6 +416,7 @@ void WCRootData::WriteTree()
     f->cd();
     fWCSimT->Write();
     fWCSimDigiWFT->Write();
+    fWCSimDigiPulls->Write();
     f->Close();
 }
 
