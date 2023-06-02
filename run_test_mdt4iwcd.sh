@@ -13,3 +13,5 @@ $EXE -i $WCSIM_FILE\
 	 -o $OUT_FILE\
 	 -s $SEED\
 	 -n -1 # to run all events
+
+root -l -b -q $MDTROOT/CloneTree.c\(\"$WCSIM_FILE\",\"$OUT_FILE\"\)
