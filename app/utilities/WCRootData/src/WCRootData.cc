@@ -25,6 +25,8 @@ WCRootData::WCRootData()
     fWCSimDigiPulls = 0;
     fPullQ = -99.;
     fPullT = -99.;
+    fTrueQ = -99.;
+    fTrueT = -99.;
 }
 
 WCRootData::~WCRootData()
@@ -194,6 +196,8 @@ void WCRootData::CreateTree(const char *filename, const vector<string> &list)
     fWCSimDigiPulls = new TTree("WCSimDigiPulls","Time and charge pulls of digitized hits");
     fWCSimDigiPulls->Branch("PullQ",&fPullQ);
     fWCSimDigiPulls->Branch("PullT",&fPullT);
+    fWCSimDigiPulls->Branch("TrueQ",&fTrueQ);
+    fWCSimDigiPulls->Branch("TrueT",&fTrueT);
 }
 
 void WCRootData::AddDigiHits(MDTManager *mdt, int eventID, int iPMT)
@@ -290,6 +294,7 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
 #else
     TClonesArray &fDigiWFarray = *fDigiWF;
 #endif
+
     for(hc->Begin(); !hc->IsEnd(); hc->Next())
     {
         HitTube *aPH = &(*hc)();
@@ -299,6 +304,8 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
 
         fPullQ = aPH->GetPullQ();
         fPullT = aPH->GetPullT();
+        fTrueQ = aPH->GetTrueQ();
+        fTrueT = aPH->GetTrueT();
         fWCSimDigiPulls->Fill();
 
         aPH = NULL;

@@ -75,6 +75,8 @@ class WCRootData
         TTree *fWCSimDigiPulls;
         float fPullQ;
         float fPullT;
+        float fTrueQ;
+        float fTrueT;
 
     private:
 		void SetTubes(HitTubeCollection*, const int);

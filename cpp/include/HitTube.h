@@ -83,8 +83,11 @@ class HitTube
             return hDigiWF;
         }
         void SetDigiPulls(float pullT, float pullQ) { fPullT = pullT; fPullQ = pullQ;}
+        void SetTrueTQ(float trueT, float trueQ) { fTrueT = trueT; fTrueQ = trueQ;}
         float GetPullT() {return fPullT;}
         float GetPullQ() {return fPullQ;}
+        float GetTrueT() {return fTrueT;}
+        float GetTrueQ() {return fTrueQ;}
         
     private:
         int fNRawPE;
@@ -101,4 +104,6 @@ class HitTube
         TH1F* hDigiWF;
         float fPullT; 
         float fPullQ;
+        float fTrueT; 
+        float fTrueQ;
 };
