@@ -15,6 +15,8 @@ HitTube::HitTube(int id)
     hDigiWF = nullptr;
     fPullQ = -99;
     fPullT = -99;
+    fTrueT = -99;
+    fTrueQ = -99;
 }
 
 

@@ -251,6 +251,7 @@ void HitDigitizer_mPMT::DigitizeTube(HitTube *aHT, PMTResponse *pr)
                 aHT->AddDigiHit(digiT, digiQ, parent_composition);
                 if (!aHT->GetDigiWF()) aHT->SetDigiWF(hWT);
                 aHT->SetDigiPulls(digiT-digiPEs.front()->GetTime(),digiQ-digiPEs.size());
+                aHT->SetTrueTQ(digiPEs.front()->GetTime(),digiPEs.size());
             }
             digiPEs.clear();
             sumSPE = 0.;
