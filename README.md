@@ -31,6 +31,23 @@ cd $MDTROOT
 bash run_test_mdt4wcte.sh
 ```
 
+## How to simulate and access digitized pulses
+For each true hit, a digitized waveform is simulated by sampling the single PE pulse (defined by the `<WaveformFile>` parameter) every 8 ns with 1 mV resolution. If there is another PE arriving within the same pulse window, the waveforms are added and pulse window is extended. 
+
+To do pulse fitting, the peak of each pulse is found, then a Gaussian fit is done and the fitted parameters are used to calculate the digitized time and charge.
+
+The waveform of the first pulse of each PMT in each event is saved in `TClonesArray`. To read the pulses,
+```
+// open the file and get the digitzed waveform tree
+TTree* wcsimDigiWFTree = (TTree*)f->Get("wcsimDigiWFTree");
+TClonesArray *arr = new TClonesArray("TH1F");
+wcsimDigiWFTree->GetBranch("wcsimDigiWF")->SetAutoDelete(kFALSE);
+wcsimDigiWFTree->SetBranchAddress("wcsimDigiWF",&arr);
+// In each event, each array index corresponds to PMT id (from 0 to nPMTs-1)
+wcsimDigiWFTree->GetEntry(0); // event id
+TH1F* h = (TH1F*)arr->At(0); // PMT id
+```
+
 ## IWCD/WCSim usage
 To run MDT on files from `/disk1/disk01/usr5/rakutsu/iwcd/neutron/beam/MassProNov2020_sukap/files/wcsim_root/NuMode/2p39/`,
 ```

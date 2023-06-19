@@ -68,6 +68,14 @@ class WCRootData
         float fHitTimeOffset;
         bool fMultDigiHits;
 
+        TTree *fWCSimDigiWFT;
+        TClonesArray* fDigiWF;
+        TClonesArray* fDigiWF2;
+
+        TTree *fWCSimDigiPulls;
+        float fPullQ;
+        float fPullT;
+
     private:
 		void SetTubes(HitTubeCollection*, const int);
         TString fOutFileName;
