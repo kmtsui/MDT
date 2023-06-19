@@ -14,12 +14,15 @@ WCRootData::WCRootData()
 
     int mult_flag = 1;
     fHitTimeOffset = 0.;
+    int save_wf = 0;
 
     Configuration *Conf = Configuration::GetInstance();
     Conf->GetValue<float>("TimeOffset", fHitTimeOffset);
     Conf->GetValue<int>("FlagMultDigits", mult_flag);
+    Conf->GetValue<int>("SaveWaveform", save_wf);
 
     fMultDigiHits = bool(mult_flag);
+    fSaveWF = bool(save_wf);
 
     fWCSimDigiWFT = 0;
     fWCSimDigiPulls = 0;
@@ -287,6 +290,7 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
         WCSimRootEventHeader *eh = anEvent->GetHeader();
         eh->SetDate( int(triggerTime) );
     }
+    
 #ifdef HYBRIDWCSIM
     TClonesArray &fDigiWFarray;
     if (!bool(iPMT)) fDigiWFarray = *fDigiWF;
@@ -298,10 +302,12 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
     for(hc->Begin(); !hc->IsEnd(); hc->Next())
     {
         HitTube *aPH = &(*hc)();
-        if (aPH->GetDigiWF())
-            new(fDigiWFarray[aPH->GetTubeID()-1]) TH1F(*(aPH->GetDigiWF()));
-        else new(fDigiWFarray[aPH->GetTubeID()-1]) TH1F();
-
+        if (fSaveWF)
+        {
+            if (aPH->GetDigiWF())
+                new(fDigiWFarray[aPH->GetTubeID()-1]) TH1F(*(aPH->GetDigiWF()));
+            else new(fDigiWFarray[aPH->GetTubeID()-1]) TH1F();
+        }
         fPullQ = aPH->GetPullQ();
         fPullT = aPH->GetPullT();
         fTrueQ = aPH->GetTrueQ();
@@ -323,7 +329,7 @@ void WCRootData::FillTree()
     {
         fSpEvt[i]->ReInitialize();
     }
-    fWCSimDigiWFT->Fill();
+    if (fSaveWF) fWCSimDigiWFT->Fill();
     fDigiWF->Clear();
 #ifdef HYBRIDWCSIM
     fDigiWF2->Clear();
@@ -434,7 +440,7 @@ void WCRootData::WriteTree()
     TFile *f = fWCSimT->GetCurrentFile();
     f->cd();
     fWCSimT->Write();
-    fWCSimDigiWFT->Write();
+    if (fSaveWF) fWCSimDigiWFT->Write();
     fWCSimDigiPulls->Write();
     f->Close();
 }
