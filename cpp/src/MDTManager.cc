@@ -123,11 +123,21 @@ void MDTManager::SetHitTubeCollection(HitTubeCollection *hc, const string &pmtna
 void MDTManager::RegisterPMTType(const string &pmtname, PMTResponse *pmtResp)
 {
     Configuration *Conf = Configuration::GetInstance();
-    int UsemPMTDigitizer = 0;
-    string s = "UsemPMTDigitizer_"+pmtname;
-    Conf->GetValue<int>(s, UsemPMTDigitizer);
-    if (!UsemPMTDigitizer) fDgtzr[pmtname] = new HitDigitizer( fRndm->Integer(1000000) );
-    else fDgtzr[pmtname] = new HitDigitizer_mPMT( fRndm->Integer(1000000) );
+    int DigitizerType = 0;
+    string s = "DigitizerType_"+pmtname;
+    Conf->GetValue<int>(s, DigitizerType);
+    switch (DigitizerType)
+    {
+        case 1:
+            fDgtzr[pmtname] = new HitDigitizer_mPMT( fRndm->Integer(1000000) );
+            cout << "Use mPMT digitizer for "<<pmtname<<endl;
+            break;
+        default:
+            fDgtzr[pmtname] = new HitDigitizer( fRndm->Integer(1000000) );
+            cout << "Use default digitizer for "<<pmtname<<endl;
+    }
+    // if (!UsemPMTDigitizer) fDgtzr[pmtname] = new HitDigitizer( fRndm->Integer(1000000) );
+    // else fDgtzr[pmtname] = new HitDigitizer_mPMT( fRndm->Integer(1000000) );
 
     fTrigInfo[pmtname] = new TriggerInfo();
     fPHC[pmtname] = new HitTubeCollection();
