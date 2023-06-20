@@ -45,11 +45,11 @@
 < TimeOffset = 950. >
 < FlagMultDigits = 0 >
 
-# WCSIM digitizer SPE charge spectrum
+# WCSIM (default) digitizer SPE charge spectrum
 < SPECDFFile_PMT3inchR12199_02 = $MDTROOT/parameter/SPE_CDF_PMT3inchR12199_02.txt >
 
 # mPMT digitizer setting
-< UsemPMTDigitizer = 1 > # use mPMT digitizer or not
+< UsemPMTDigitizer_PMT3inchR12199_02 = 1 > # use mPMT digitizer or not
 < WaveformFile = $MDTROOT/parameter/LC-gauss.txt >
 < SamplingInterval = 8 > # ns
 < WaveformOffset = 95 > # ns

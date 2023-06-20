@@ -38,7 +38,8 @@ class MDTManager
 
     private:
         TriggerAlgo *fTrigAlgo;
-        HitDigitizer *fDgtzr;
+        //HitDigitizer *fDgtzr;
+        map<string, HitDigitizer*> fDgtzr;
         MTRandom *fRndm;
 
         map<string, TriggerInfo*> fTrigInfo;

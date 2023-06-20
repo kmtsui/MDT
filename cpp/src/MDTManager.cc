@@ -5,12 +5,13 @@ MDTManager::MDTManager(int seed)
     fRndm = new MTRandom( seed );
     fTrigAlgo = new TriggerAlgo();
     
-    Configuration *Conf = Configuration::GetInstance();
-    int UsemPMTDigitizer = 0;
-    Conf->GetValue<int>("UsemPMTDigitizer", UsemPMTDigitizer);
-    if (!UsemPMTDigitizer) fDgtzr = new HitDigitizer( fRndm->Integer(1000000) );
-    else fDgtzr = new HitDigitizer_mPMT( fRndm->Integer(1000000) );
+    // Configuration *Conf = Configuration::GetInstance();
+    // int UsemPMTDigitizer = 0;
+    // Conf->GetValue<int>("UsemPMTDigitizer", UsemPMTDigitizer);
+    // if (!UsemPMTDigitizer) fDgtzr = new HitDigitizer( fRndm->Integer(1000000) );
+    // else fDgtzr = new HitDigitizer_mPMT( fRndm->Integer(1000000) );
 
+    fDgtzr.clear();
     fPMTResp.clear();
     fDark.clear();
     fPHC.clear();
@@ -22,10 +23,18 @@ MDTManager::~MDTManager()
     if( fTrigAlgo ){ delete fTrigAlgo; fTrigAlgo = NULL; }
     if( fRndm ){ delete fRndm; fRndm = NULL; }
 
+    map<string, HitDigitizer*>::iterator iDgtzr;
+    for(iDgtzr=fDgtzr.begin(); iDgtzr!=fDgtzr.end(); iDgtzr++)
+    {
+        std::cout<<" Deleting" << iDgtzr->first <<std::endl;
+        delete iDgtzr->second; iDgtzr->second = NULL;
+    }
+    fDgtzr.clear();
+
     map<string, PMTResponse*>::iterator iPMTResp;
     for(iPMTResp=fPMTResp.begin(); iPMTResp!=fPMTResp.end(); iPMTResp++)
     {
-        std::cout<<" Deleting" << iPMTResp->first <<std::endl;
+        //std::cout<<" Deleting" << iPMTResp->first <<std::endl;
         delete iPMTResp->second; iPMTResp->second = NULL;
     }
     fPMTResp.clear();
@@ -64,7 +73,7 @@ void MDTManager::DoDigitize(const string &pmtname)
 {
     if( this->HasThisPMTType(pmtname) )
     {
-        fDgtzr->Digitize(fPHC[pmtname], fPMTResp[pmtname]);
+        fDgtzr[pmtname]->Digitize(fPHC[pmtname], fPMTResp[pmtname]);
         //cout<<" # true hits: " << fPHC[pmtname]->GetTotalNumOfTrueHits()
 		//	<<" # digitized hits: " << fPHC[pmtname]->GetTotalNumOfDigiHits()
 		//	<<endl;
@@ -83,7 +92,7 @@ void MDTManager::DoAddAfterpulse(const string &pmtname)
 {
     if( this->HasThisPMTType(pmtname) )
     {
-        fDark[pmtname]->AddAfterpulse(fPHC[pmtname], fDgtzr, fPMTResp[pmtname]);
+        fDark[pmtname]->AddAfterpulse(fPHC[pmtname], fDgtzr[pmtname], fPMTResp[pmtname]);
     }
 }
 
@@ -113,6 +122,13 @@ void MDTManager::SetHitTubeCollection(HitTubeCollection *hc, const string &pmtna
 
 void MDTManager::RegisterPMTType(const string &pmtname, PMTResponse *pmtResp)
 {
+    Configuration *Conf = Configuration::GetInstance();
+    int UsemPMTDigitizer = 0;
+    string s = "UsemPMTDigitizer_"+pmtname;
+    Conf->GetValue<int>(s, UsemPMTDigitizer);
+    if (!UsemPMTDigitizer) fDgtzr[pmtname] = new HitDigitizer( fRndm->Integer(1000000) );
+    else fDgtzr[pmtname] = new HitDigitizer_mPMT( fRndm->Integer(1000000) );
+
     fTrigInfo[pmtname] = new TriggerInfo();
     fPHC[pmtname] = new HitTubeCollection();
     fDark[pmtname] = new PMTNoise(fRndm->Integer(1000000), pmtname);
