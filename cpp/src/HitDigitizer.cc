@@ -151,12 +151,14 @@ HitDigitizer_mPMT::HitDigitizer_mPMT(int seed) : HitDigitizer(seed)
 {
     hWF = nullptr;
     fDt = 8;
+    fDv = 1;
     fWaveformOffset = 95;
     fADCToPE = 108;
     fSigmaGuess = 6;
 
     Configuration *Conf = Configuration::GetInstance();
     Conf->GetValue<float>("SamplingInterval", fDt);
+    Conf->GetValue<float>("SamplingResolution", fDv);
     Conf->GetValue<float>("WaveformOffset", fWaveformOffset);
     Conf->GetValue<float>("ADCToPE", fADCToPE);
     Conf->GetValue<float>("SigmaGuess", fSigmaGuess);
@@ -233,7 +235,7 @@ void HitDigitizer_mPMT::DigitizeTube(HitTube *aHT, PMTResponse *pr)
             sumSPE += pr->GetRawSPE(PEs[iPE], aHT);
             parent_composition.push_back( PEs[iPE]->GetParentId() );
             digiPEs.push_back(PEs[iPE]);
-            intgr_end = PEs[iPE]->GetTime()+fIntegWindow;
+            //intgr_end = PEs[iPE]->GetTime()+fIntegWindow;
         }
         else
         {
@@ -307,7 +309,10 @@ TH1F HitDigitizer_mPMT::BuildWavetrain(const vector<TrueHit*> PEs, double wavefo
 
     for (int i=1;i<=hWT.GetNbinsX();i++)
     {
-        hWT.SetBinError(i,1);
+        double val = (int)(hWT.GetBinContent(i)/fDv);
+        val *= fDv;
+        hWT.SetBinContent(i,val);
+        hWT.SetBinError(i,fDv);
     }
 
     return hWT;
