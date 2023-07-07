@@ -54,7 +54,7 @@
 # mPMT digitizer setting
 < WaveformFile = $MDTROOT/parameter/LC-gauss.txt >
 < SamplingInterval = 8 > # ns
-< SamplingResolution = 1.5 > #mV
+< SamplingResolution = 1 > #mV
 < WaveformOffset = 95 > # ns
 < SigmaGuess = 6 > # ns, initial guess of pulse width
 < ADCToPE = 108 > # empirical conversion from adc to pe
