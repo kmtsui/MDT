@@ -108,13 +108,16 @@ void MDTManager::SetHitTubeCollection(HitTubeCollection *hc, const string &pmtna
 
 void MDTManager::RegisterPMTType(const string &pmtname, PMTResponse *pmtResp)
 {
-    fTrigInfo[pmtname] = new TriggerInfo();
-    fPHC[pmtname] = new HitTubeCollection();
-    fDark[pmtname] = new PMTNoise(fRndm->Integer(1000000), pmtname);
+    if( fPHC.count(pmtname)==0 )
+    {
+        fTrigInfo[pmtname] = new TriggerInfo();
+        fPHC[pmtname] = new HitTubeCollection();
+        fDark[pmtname] = new PMTNoise(fRndm->Integer(1000000), pmtname);
 
-    if( pmtResp==0 ){ fPMTResp[pmtname] = new GenericPMTResponse(); }
-    else{ fPMTResp[pmtname] = pmtResp; }
-    fPMTResp[pmtname]->Initialize(fRndm->Integer(10000000), pmtname);
+        if( pmtResp==0 ){ fPMTResp[pmtname] = new GenericPMTResponse(); }
+        else{ fPMTResp[pmtname] = pmtResp; }
+        fPMTResp[pmtname]->Initialize(fRndm->Integer(10000000), pmtname);
+    }
 }
 
 bool MDTManager::HasThisPMTType(const string &pmtname)
