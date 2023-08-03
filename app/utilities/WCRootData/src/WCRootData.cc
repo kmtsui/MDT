@@ -10,6 +10,7 @@ WCRootData::WCRootData()
     fWCSimC = 0;
     fWCSimT = 0;
     fSpEvt.clear();
+    isOD.clear();
     fOutFileName = "";
 
     int mult_flag = 1;
@@ -29,6 +30,8 @@ WCRootData::~WCRootData()
     if( fWCSimC ){ delete fWCSimC; fWCSimC = 0; }
     fSpEvt.clear();
     fSpEvt.shrink_to_fit();
+    isOD.clear();
+    isOD.shrink_to_fit();
 }
 
 
@@ -81,11 +84,11 @@ void WCRootData::AddTrueHitsToMDT(HitTubeCollection *hc, PMTResponse *pr, float 
             if( aHitTime->GetParentID()<0 ){ continue; }
 
             TrueHit *th = new TrueHit(truetime, aHitTime->GetParentID());
-#ifdef HYBRIDWCSIM
+
             for(int k=0; k<3; k++){ th->SetPosition(k, aHitTime->GetPhotonEndPos(k)); }
             for(int k=0; k<3; k++){ th->SetDirection(k, aHitTime->GetPhotonEndDir(k)); }
             for(int k=0; k<3; k++){ th->SetStartDirection(k, aHitTime->GetPhotonStartDir(k)); }
-#endif
+
             th->SetStartTime(aHitTime->GetPhotonStartTime());
             for(int k=0; k<3; k++){ th->SetStartPosition(k, aHitTime->GetPhotonStartPos(k)); }
             if( !pr->ApplyDE(th) ){ continue; }
@@ -110,15 +113,19 @@ void WCRootData::ReadFile(const char *filename, const vector<string> &list)
     if( list.size()==0 ) // default
     {
         fSpEvt.push_back( 0 );
+        isOD.push_back(false);
         fWCSimC->SetBranchAddress("wcsimrootevent", &fSpEvt[0]);
     }
     else
     {
         fSpEvt.clear();
         fSpEvt = vector<WCSimRootEvent*>(list.size(),0);
+        isOD.clear();
+        isOD = vector<bool>(list.size(),false);
         for(unsigned int i=0; i<list.size(); i++)
         {
             fWCSimC->SetBranchAddress(list[i].c_str(), &fSpEvt[i]);
+            if ( list[i].find("OD")!=std::string::npos ) isOD[i] = true;
         }
     }
     fWCSimC->SetAutoDelete();
@@ -129,6 +136,8 @@ void WCRootData::CloseFile()
     delete fWCSimC; fWCSimC = 0;
     fSpEvt.clear();
     fSpEvt.shrink_to_fit();
+    isOD.clear();
+    isOD.shrink_to_fit();
 }
 
 int WCRootData::GetEntries() 
@@ -165,6 +174,8 @@ void WCRootData::CreateTree(const char *filename, const vector<string> &list)
     {
         fSpEvt.clear();
         fSpEvt = vector<WCSimRootEvent*>(list.size(), 0);
+        isOD.clear();
+        isOD = vector<bool>(list.size(),false);
         for(unsigned int i=0; i<list.size(); i++)
         {
 //            fSpEvt.push_back( new WCSimRootEvent() );
@@ -172,6 +183,7 @@ void WCRootData::CreateTree(const char *filename, const vector<string> &list)
             fSpEvt[i]->Initialize();
             TTree::SetBranchStyle(branchStyle);
             fWCSimT->Branch(list[i].c_str(), bAddress, &fSpEvt[i], bufferSize, 2);
+            if ( list[i].find("OD")!=std::string::npos ) isOD[i] = true;
         }
     }
 }
@@ -352,7 +364,7 @@ void WCRootData::CopyTree(const char *filename,
     // Copy all the entries
     if( savelist.size()==0 )
     {
-        if( strcmp(treename,"Settings")==0 )
+        if( strcmp(treename,"Settings")!=0 )
         {
             TTree *tin = (TTree*)fin->Get(treename);
 
@@ -433,11 +445,10 @@ void WCRootData::CopyTree(const char *filename,
 
 void WCRootData::SetTubes(HitTubeCollection *hc, const int iPMT)
 {
-#ifdef HYBRIDWCSIM
-	const int nTubes = fWCGeom->GetWCNumPMT(bool(iPMT));
+	const int nTubes = !isOD.at(iPMT) ? fWCGeom->GetWCNumPMT(bool(iPMT)) : fWCGeom->GetODWCNumPMT() ;
 	for(int i=0; i<nTubes; i++)
 	{
-		const WCSimRootPMT *tube = fWCGeom->GetPMTPtr(i, bool(iPMT));
+		const WCSimRootPMT *tube = !isOD.at(iPMT) ? fWCGeom->GetPMTPtr(i, bool(iPMT)) : fWCGeom->GetODPMTPtr(i) ;
 
 		const int tubeID = tube->GetTubeNo();
 		hc->AddHitTube(tubeID);
@@ -447,18 +458,4 @@ void WCRootData::SetTubes(HitTubeCollection *hc, const int iPMT)
 			(&(*hc)[tubeID])->SetOrientation(j, tube->GetOrientation(j));
 		}
 	}
-#else
-	const int nTubes = fWCGeom->GetWCNumPMT();
-	for(int i=0; i<nTubes; i++)
-	{
-  		WCSimRootPMT tube = fWCGeom->GetPMT(i);
-		const int tubeID = tube.GetTubeNo();
-		hc->AddHitTube(tubeID);
-		for(int j=0; j<3; j++)
-		{
-			(&(*hc)[tubeID])->SetPosition(j, tube.GetPosition(j));
-			(&(*hc)[tubeID])->SetOrientation(j, tube.GetOrientation(j));
-		}
-	}
-#endif
 }

@@ -61,6 +61,7 @@ class WCRootData
         TChain *fWCSimC;
         TTree *fWCSimT;
         vector<WCSimRootEvent*> fSpEvt;
+        vector<bool> isOD;
         WCSimRootGeom *fWCGeom;
 
         Float_t fDetCentreY;
