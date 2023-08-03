@@ -61,8 +61,6 @@ void WCRootData::AddTrueHitsToMDT(HitTubeCollection *hc, PMTResponse *pr, float 
     const WCSimRootTrigger *aEvt = fSpEvt[iPMT]->GetTrigger(0);
     const int nCkovHits = aEvt->GetNcherenkovhits();
 	//std::cout<<" nCkovHits: " << nCkovHits <<std::endl;
-	float pmt_position[3];
-	float pmt_orientation[3];
     TClonesArray *hitTimeArray = aEvt->GetCherenkovHitTimes();
     for(int iHit=0; iHit<nCkovHits; iHit++)
     {
@@ -161,7 +159,7 @@ void WCRootData::CreateTree(const char *filename, const vector<string> &list)
         fSpEvt.push_back( new WCSimRootEvent() );
         fSpEvt[0]->Initialize();
         TTree::SetBranchStyle(branchStyle);
-        TBranch *branch = fWCSimT->Branch(bName, bAddress, &fSpEvt[0], bufferSize, 2);
+        fWCSimT->Branch(bName, bAddress, &fSpEvt[0], bufferSize, 2);
     }
     else  
     {
@@ -173,7 +171,7 @@ void WCRootData::CreateTree(const char *filename, const vector<string> &list)
             fSpEvt[i] = new WCSimRootEvent();
             fSpEvt[i]->Initialize();
             TTree::SetBranchStyle(branchStyle);
-            TBranch *branch = fWCSimT->Branch(list[i].c_str(), bAddress, &fSpEvt[i], bufferSize, 2);
+            fWCSimT->Branch(list[i].c_str(), bAddress, &fSpEvt[i], bufferSize, 2);
         }
     }
 }
@@ -205,11 +203,7 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
             anEvent->SetMode(0);
         }
 
-#ifdef HYBRIDWCSIM
         vector<Double_t> info(1, ti->GetNHits(iTrig));
-#else
-        vector<Float_t> info(1, ti->GetNHits(iTrig));
-#endif
         anEvent->SetTriggerInfo(trigType, info);
 
         const float triggerTime = ti->GetTriggerTime(iTrig);
@@ -269,7 +263,6 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
 
 void WCRootData::FillTree()
 {
-    int tmp = (int)fSpEvt.size();
     TFile *f = fWCSimT->GetCurrentFile();
     f->cd();
     fWCSimT->Fill();     
@@ -295,12 +288,9 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
         Int_t     stopvol = aTrack->GetStopvol();
         Int_t     parenttype = aTrack->GetParenttype();
         Int_t     id = aTrack->GetId();
-#ifdef HYBRIDWCSIM
         Int_t     idPrnt = aTrack->GetParentId();
-#endif
 
 
-#ifdef HYBRIDWCSIM
         Double_t   dir[3];
         Double_t   pdir[3];
         Double_t   stop[3];
@@ -309,16 +299,6 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
         Double_t   p = aTrack->GetP();
         Double_t   E = aTrack->GetE();
         Double_t   time = aTrack->GetTime() + offset_time;
-#else 
-        Float_t   dir[3];
-        Float_t   pdir[3];
-        Float_t   stop[3];
-        Float_t   start[3];
-        Float_t   m = aTrack->GetM();
-        Float_t   p = aTrack->GetP();
-        Float_t   E = aTrack->GetE();
-        Float_t   time = aTrack->GetTime() + offset_time;
-#endif
         for(int j=0; j<3; j++)
         {
             dir[j] = aTrack->GetDir(j); 
@@ -327,7 +307,6 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
             start[j] = aTrack->GetStart(j);
         }
 
-#ifdef HYBRIDWCSIM
         aEvtOut->AddTrack(ipnu, 
 			  flag, 
 			  m, 
@@ -343,38 +322,6 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
 			  time,
 			  id,
 			  idPrnt);
-#else
-        aEvtOut->AddTrack(ipnu, 
-			  flag, 
-			  m, 
-			  p, 
-			  E, 
-			  startvol, 
-			  stopvol, 
-			  dir, 
-			  pdir, 
-			  stop,
-			  start,
-			  parenttype,
-			  time,
-			  id);
-#endif
-
-  WCSimRootTrack         *AddTrack(Int_t ipnu, 
-				   Int_t flag, 
-				   Float_t m, 
-				   Float_t p, 
-				   Float_t E, 
-				   Int_t startvol, 
-				   Int_t stopvol, 
-				   Float_t dir[3], 
-				   Float_t pdir[3], 
-				   Float_t stop[3],
-				   Float_t start[3],
-				   Int_t parenttype,
-				   Float_t time,
-				   Int_t id);
-
 
     }
 }
@@ -405,7 +352,7 @@ void WCRootData::CopyTree(const char *filename,
     // Copy all the entries
     if( savelist.size()==0 )
     {
-        if( treename!="Settings" )
+        if( strcmp(treename,"Settings")==0 )
         {
             TTree *tin = (TTree*)fin->Get(treename);
 

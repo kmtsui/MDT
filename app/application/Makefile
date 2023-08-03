@@ -7,7 +7,7 @@ CXXFLAGS += -Wall -std=c++11 -g $(shell root-config --cflags)\
 			-I${WCRDROOT}/include
 
 LDFLAGS += $(shell root-config --ldflags) $(shell root-config --libs) -lTreePlayer\
-		   -L$(WCSIMDIR) -lWCSimRoot\
+		   -L$(WCSIMROOTDIR) -lWCSimRoot\
 		   -L${MDTROOT}/cpp -lMDT\
 		   -L${WCRDROOT} -lWCRData
 

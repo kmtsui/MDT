@@ -49,7 +49,6 @@ void TriggerAlgo::NDigits(HitTubeCollection *hc, TriggerInfo* ti)
         }
         std::sort(times.begin(), times.end());
          
-        float tFirstHit = times[0];
         float tLastHit = times[nTotalDigiHits-1];
 
         const double stepSize = fNDigitsStepSize; // in ns

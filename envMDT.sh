@@ -27,7 +27,7 @@ if [ -n "${MDTROOT}" ] ; then
 		drop_from_path "$LD_LIBRARY_PATH" "${old_mdtroot}/cpp"
 		LD_LIBRARY_PATH=$newpath
 
-		drop_from_path "$LD_LIBRARY_PATH" "${WCSIMDIR}"
+		drop_from_path "$LD_LIBRARY_PATH" "${WCSIMROOTDIR}"
 		LD_LIBRARY_PATH=$newpath
 
 		drop_from_path "$LD_LIBRARY_PATH" "${WCRDROOT}"
@@ -64,7 +64,13 @@ if [[ -z "${WCSIMDIR}" ]]; then
 	return 
 else
 	echo "Using WCSIM installed in $WCSIMDIR"
-	export LD_LIBRARY_PATH=${WCSIMDIR}:$LD_LIBRARY_PATH
+	#export LD_LIBRARY_PATH=${WCSIMDIR}:$LD_LIBRARY_PATH
+
+	if [[ -z "${WCSIMROOTDIR}" ]]; then
+		WCSIMROOTDIR=$WCSIMDIR
+	fi
+	echo "Using libWCSimRoot.so installed in $WCSIMROOTDIR"
+	export LD_LIBRARY_PATH=${WCSIMROOTDIR}:$LD_LIBRARY_PATH
 fi
 
 #--- MDT's utility

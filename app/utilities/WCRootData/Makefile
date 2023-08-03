@@ -6,7 +6,7 @@ ifeq ($(HYBRIDWCSIM),1)
 CXXFLAGS += -DHYBRIDWCSIM
 endif
 #LDFLAGS += -shared $(shell root-config --ldflags) $(shell root-config --libs) -lTreePlayer -lMinuit2 -L$(WCSIMDIR) -lWCSimRoot -L${MDTROOT}/cpp -lMDT
-LDFLAGS += -shared $(shell root-config --ldflags) $(shell root-config --libs) -L$(WCSIMDIR) -lWCSimRoot -L${MDTROOT}/cpp -lMDT
+LDFLAGS += -shared $(shell root-config --ldflags) $(shell root-config --libs) -L$(WCSIMROOTDIR) -lWCSimRoot -L${MDTROOT}/cpp -lMDT
 
 TARGET=libWCRData.so
 

@@ -20,12 +20,16 @@ Simple runtime procedures. First set up your ROOT and WCSIM:
 source your_thisroot.sh
 export WCSIMDIR=your_WCSIM_installation
 ```
+If `libWCSimRoot.so` is not directly under `WCSIMDIR`, export to `WCSIMROOTDIR`.
+```
+export WCSIMROOTDIR=your_libWCSimRoot.so_installation
+```
 Then set up the MDT environment.
 ```
 source envMDT.sh
 cd $MDTROOT/cpp; make clean; make all
 cd $MDTROOT/app/utilities/WCRootData; make clean; make all
-cd $MDTROOT/app/application; make appWCTESingleEvent
+cd $MDTROOT/app/application; make clean; make appWCTESingleEvent
 cd $MDTROOT
 # edit variables properly in run_test_mdt4wcte.sh
 bash run_test_mdt4wcte.sh

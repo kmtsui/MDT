@@ -14,6 +14,7 @@ using std::string;
 class PMTResponse
 {
     public:
+        virtual ~PMTResponse() {};
         virtual double GetRawSPE(const TrueHit* th=NULL, const HitTube* ht=NULL) = 0; 
         virtual float HitTimeSmearing(float) = 0;
         virtual void Initialize(int, const string &s="") = 0;
