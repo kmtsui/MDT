@@ -18,9 +18,15 @@ appWCTESingleEvent: appWCTESingleEvent.o PMTResponse3inchR12199_02.o
 	$(LD) $^ $(LDFLAGS) -o $@
 	@echo "$@ done"
 
+appIWCDSingleEvent: appIWCDSingleEvent.o PMTResponse3inchR12199_02.o
+	$(RM) $@
+	$(LD) $^ $(LDFLAGS) -o $@
+	@echo "$@ done"
 
 %o::%cc
 	$(CXX) $(CXXFLAGS) -c $? -o $@
 
 clean:
 	$(RM) *.o
+	$(RM) -f appWCTESingleEvent
+	$(RM) -f appIWCDSingleEvent

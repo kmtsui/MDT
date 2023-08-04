@@ -4,6 +4,7 @@
 
 # binary
 appWCTESingleEvent
+appIWCDSingleEvent
 
 # root file
 *.root

@@ -29,8 +29,8 @@ Then set up the MDT environment.
 source envMDT.sh
 cd $MDTROOT/cpp; make clean; make all
 cd $MDTROOT/app/utilities/WCRootData; make clean; make all
-cd $MDTROOT/app/application; make clean; make appWCTESingleEvent
+cd $MDTROOT/app/application; make clean; make appIWCDSingleEvent
 cd $MDTROOT
 # edit variables properly in run_test_mdt4wcte.sh
-bash run_test_mdt4wcte.sh
+bash run_test_mdt4iwcd.sh
 ```
