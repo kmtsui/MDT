@@ -52,13 +52,17 @@ void TriggerAlgo::NDigits(HitTubeCollection *hc, TriggerInfo* ti)
         float tLastHit = times[nTotalDigiHits-1];
 
         const double stepSize = fNDigitsStepSize; // in ns
-        const double tWindowMax = std::max(0.f, tLastHit - fNDigitsWindow); // in ns
+        //const double tWindowMax = std::max(0.f, tLastHit - fNDigitsWindow); // in ns
+        const double tWindowMax = tLastHit - fNDigitsWindow + stepSize;
 
         double tWindowUp = 0.;
-        double tWindowLow = 0.;
+        //double tWindowLow = 0.;
+        double tWindowLow = times[0];
+        if (tWindowLow>0) tWindowLow = ((int)(tWindowLow/stepSize))*stepSize;
+        else tWindowLow = ((int)(tWindowLow/stepSize)-1)*stepSize;
 
         //  - Slide the time window with a width of "fNDigitsWindow"
-        //    from "tWindowLow" (assumed to be 0 initially) to "tWindowMax"
+        //    from "tWindowLow" to "tWindowMax"
         //    with a step size of "stepSize"
         //
         //  - For each step, all the digitized hits falling the corresponding window
@@ -70,6 +74,7 @@ void TriggerAlgo::NDigits(HitTubeCollection *hc, TriggerInfo* ti)
         {
             vector<float> Times;
             Times.clear();
+            double next_hit_time = tWindowMax;
             for(iHit=0; iHit<nTotalDigiHits; iHit++)
             {
                 float t = times[iHit];
@@ -77,13 +82,15 @@ void TriggerAlgo::NDigits(HitTubeCollection *hc, TriggerInfo* ti)
                 {
                     Times.push_back( t ); 
                 }
+                if ( t>tWindowLow && t<next_hit_time ) next_hit_time = t;
             }
 
             bool isTriggerFound = false;
             if( (int)Times.size()>fNDigitsThreshold )
             {
                 trigTime = Times[fNDigitsThreshold];
-                trigTime -= (int)trigTime%5;
+                if (trigTime>0) trigTime = ((int)(trigTime/stepSize))*stepSize;
+                else trigTime = ((int)(trigTime/stepSize)-1)*stepSize;
                 float trigTimeLow = trigTime + fPreTriggerWindow[TriggerType::eNDigits];
                 float trigTimeUp = trigTime + fPostTriggerWindow[TriggerType::eNDigits];
 
@@ -118,6 +125,12 @@ void TriggerAlgo::NDigits(HitTubeCollection *hc, TriggerInfo* ti)
             else
             {
                 tWindowLow += stepSize;
+                if (tWindowLow<next_hit_time)
+                {
+                    tWindowLow = next_hit_time;
+                    if (tWindowLow>0) tWindowLow = ((int)(tWindowLow/stepSize))*stepSize;
+                    else tWindowLow = ((int)(tWindowLow/stepSize)-1)*stepSize;
+                }
             }
             tWindowUp = tWindowLow + fNDigitsWindow;
         }
