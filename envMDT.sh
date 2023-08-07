@@ -77,18 +77,6 @@ fi
 export WCRDROOT=$MDTROOT/app/utilities/WCRootData
 export LD_LIBRARY_PATH=${WCRDROOT}:$LD_LIBRARY_PATH
 
-#--- Option to read hybrid WCSIM files
-if [[ -z "${HYBRIDWCSIM}" ]]; then
-	echo "HYBRIDWCSIM not set. Default to 0"
-	export HYBRIDWCSIM=0
-elif [[ $HYBRIDWCSIM -eq 0 ]]; then
-	echo "HYBRIDWCSIM set to 0"
-	export HYBRIDWCSIM=0
-else
-	echo "HYBRIDWCSIM set to 1"
-	export HYBRIDWCSIM=1
-fi
-
 echo "Setup complete!"
 echo "MDTROOT=$MDTROOT"
 echo "WCRDROOT=$WCRDROOT"
