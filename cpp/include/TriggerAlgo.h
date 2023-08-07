@@ -17,7 +17,7 @@ using std::vector;
 class TriggerAlgo
 {
     public:
-        TriggerAlgo();
+        TriggerAlgo(const string &s="");
         virtual ~TriggerAlgo(){};
 
         void DoTrigger(HitTubeCollection*, TriggerInfo*);
@@ -36,4 +36,6 @@ class TriggerAlgo
         TriggerType fTriggerType;
 
         static const double fLongTime;      ///< An arbitrary long time to use in loops (ns)
+
+        string fPMTType;
 };

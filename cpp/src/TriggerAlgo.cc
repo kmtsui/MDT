@@ -4,12 +4,13 @@
 
 const double TriggerAlgo::fLongTime = 40E9; // ns = 40s. loooong time for SN simulations
 
-TriggerAlgo::TriggerAlgo() :
+TriggerAlgo::TriggerAlgo(const string &pmtname) :
 fTriggerTimeForFailure( 100. ),
 fNDigitsWindow( 200. ),
 fNDigitsStepSize( 5. ),
 fNDigitsThreshold( 25 ),
-fTriggerType ( TriggerType::eNDigits )
+fTriggerType ( TriggerType::eNDigits ),
+fPMTType( pmtname )
 {
     fPreTriggerWindow[TriggerType::eNDigits] = -400.;
     fPreTriggerWindow[TriggerType::eFailure] = -400.;
@@ -19,33 +20,53 @@ fTriggerType ( TriggerType::eNDigits )
     fPostTriggerWindow[TriggerType::eFailure] = 100000.;
     fPostTriggerWindow[TriggerType::eNoTrig]  = fLongTime;
 
+    map<string, string> s;
+    s["NDigitsWindow"] = "NDigitsWindow";
+    s["NDigitsStepSize"] = "NDigitsStepSize";
+    s["NDigitsThreshold"] = "NDigitsThreshold";
+    s["FailureTime"] = "FailureTime";
+    s["NDigitsPreTriggerWindow"] = "NDigitsPreTriggerWindow";
+    s["NDigitsPostTriggerWindow"] = "NDigitsPostTriggerWindow";
+    s["FailurePreTriggerWindow"] = "FailurePreTriggerWindow";
+    s["FailurePostTriggerWindow"] = "FailurePostTriggerWindow";
+    s["TriggerType"] = "TriggerType";
+
+    if( fPMTType!="" )
+    {
+        map<string, string>::iterator i;
+        for(i=s.begin(); i!=s.end(); i++)
+        {
+            i->second += "_" + fPMTType;
+        }
+    }
+
     string sTriggerType;
 
     Configuration *Conf = Configuration::GetInstance();
-    Conf->GetValue<float>("NDigitsWindow", fNDigitsWindow);
-    Conf->GetValue<float>("NDigitsStepSize", fNDigitsStepSize);
-    Conf->GetValue<int>("NDigitsThreshold", fNDigitsThreshold );
-    Conf->GetValue<float>("FailureTime", fTriggerTimeForFailure);
-    Conf->GetValue<float>("NDigitsPreTriggerWindow", fPreTriggerWindow[TriggerType::eNDigits]);
-    Conf->GetValue<float>("NDigitsPostTriggerWindow", fPostTriggerWindow[TriggerType::eNDigits]);
-    Conf->GetValue<float>("FailurePreTriggerWindow", fPreTriggerWindow[TriggerType::eFailure]);
-    Conf->GetValue<float>("FailurePostTriggerWindow", fPostTriggerWindow[TriggerType::eFailure]);
-    Conf->GetValue<string>("TriggerType", sTriggerType);
+    Conf->GetValue<float>(s["NDigitsWindow"], fNDigitsWindow);
+    Conf->GetValue<float>(s["NDigitsStepSize"], fNDigitsStepSize);
+    Conf->GetValue<int>(s["NDigitsThreshold"], fNDigitsThreshold );
+    Conf->GetValue<float>(s["FailureTime"], fTriggerTimeForFailure);
+    Conf->GetValue<float>(s["NDigitsPreTriggerWindow"], fPreTriggerWindow[TriggerType::eNDigits]);
+    Conf->GetValue<float>(s["NDigitsPostTriggerWindow"], fPostTriggerWindow[TriggerType::eNDigits]);
+    Conf->GetValue<float>(s["FailurePreTriggerWindow"], fPreTriggerWindow[TriggerType::eFailure]);
+    Conf->GetValue<float>(s["FailurePostTriggerWindow"], fPostTriggerWindow[TriggerType::eFailure]);
+    Conf->GetValue<string>(s["TriggerType"], sTriggerType);
 
     if ( sTriggerType=="NDigits" )
     {
         fTriggerType = TriggerType::eNDigits;
-        cout<<" Use default NDigits trigger "<<endl;
+        cout<<" Use default NDigits trigger for "<<fPMTType<<endl;
     }
     else if ( sTriggerType=="NoTrig" )
     {
         fTriggerType = TriggerType::eNoTrig;
-        cout<<" Use NoTrig trigger "<<endl;
+        cout<<" Use NoTrig trigger for "<<fPMTType<<endl;
     }
     else 
     {
         fTriggerType = TriggerType::eNDigits;
-        cout<<" Unknown trigger type! Use default NDigits trigger "<<endl;
+        cout<<" Unknown trigger type! Use default NDigits trigger for "<<fPMTType<<endl;
     }
 }
 
