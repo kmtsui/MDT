@@ -2,17 +2,24 @@
 #include "Configuration.h"
 #include "HitTube.h"
 
+const double TriggerAlgo::fLongTime = 40E9; // ns = 40s. loooong time for SN simulations
+
 TriggerAlgo::TriggerAlgo() :
+fTriggerTimeForFailure( 100. ),
 fNDigitsWindow( 200. ),
 fNDigitsStepSize( 5. ),
 fNDigitsThreshold( 25 ),
-fTriggerTimeForFailure( 100. )
+fTriggerType ( TriggerType::eNDigits )
 {
     fPreTriggerWindow[TriggerType::eNDigits] = -400.;
     fPreTriggerWindow[TriggerType::eFailure] = -400.;
+    fPreTriggerWindow[TriggerType::eNoTrig]  = -fLongTime;
     
     fPostTriggerWindow[TriggerType::eNDigits] = 950.;
     fPostTriggerWindow[TriggerType::eFailure] = 100000.;
+    fPostTriggerWindow[TriggerType::eNoTrig]  = fLongTime;
+
+    string sTriggerType;
 
     Configuration *Conf = Configuration::GetInstance();
     Conf->GetValue<float>("NDigitsWindow", fNDigitsWindow);
@@ -23,8 +30,56 @@ fTriggerTimeForFailure( 100. )
     Conf->GetValue<float>("NDigitsPostTriggerWindow", fPostTriggerWindow[TriggerType::eNDigits]);
     Conf->GetValue<float>("FailurePreTriggerWindow", fPreTriggerWindow[TriggerType::eFailure]);
     Conf->GetValue<float>("FailurePostTriggerWindow", fPostTriggerWindow[TriggerType::eFailure]);
+    Conf->GetValue<string>("TriggerType", sTriggerType);
+
+    if ( sTriggerType=="NDigits" )
+    {
+        fTriggerType = TriggerType::eNDigits;
+        cout<<" Use default NDigits trigger "<<endl;
+    }
+    else if ( sTriggerType=="NoTrig" )
+    {
+        fTriggerType = TriggerType::eNoTrig;
+        cout<<" Use NoTrig trigger "<<endl;
+    }
+    else 
+    {
+        fTriggerType = TriggerType::eNDigits;
+        cout<<" Unknown trigger type! Use default NDigits trigger "<<endl;
+    }
 }
 
+void TriggerAlgo::DoTrigger(HitTubeCollection *hc, TriggerInfo* ti)
+{
+    if ( fTriggerType == TriggerType::eNDigits )
+    {
+        NDigits(hc, ti);
+    }
+    else
+    {
+        NoTrig(hc, ti);
+    }
+}
+
+void TriggerAlgo::NoTrig(HitTubeCollection *hc, TriggerInfo* ti)
+{
+    float trigTime = 0.;
+    int nHits = hc->GetTotalNumOfDigiHits();
+    float trigTimeLow = trigTime + fPreTriggerWindow[TriggerType::eNoTrig];
+    float trigTimeUp  = trigTime + fPostTriggerWindow[TriggerType::eNoTrig];
+    ti->AddTrigger( trigTime,
+                    trigTimeLow,
+                    trigTimeUp,
+                    nHits, 
+                    (int)TriggerType::eNoTrig);
+
+    cout<<" Found trigger at: " << trigTime 
+        <<" nHits: " << nHits 
+        <<" trigger window: [" << trigTimeLow
+        <<", " << trigTimeUp
+        <<"] ns " 
+        <<endl;
+}
 
 // This is based on WCSimWCTriggerBase::AlgNDigits in WCSimWCTrigger.cc
 void TriggerAlgo::NDigits(HitTubeCollection *hc, TriggerInfo* ti)

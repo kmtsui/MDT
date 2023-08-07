@@ -202,9 +202,15 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
     for(int iTrig=0; iTrig<nTriggers; iTrig++) 
     {
         TriggerType_t trigType = kTriggerNDigits;
+        float hitTimeOffset = fHitTimeOffset;
         if( ti->GetType(iTrig)==(int)TriggerType::eFailure )
         {
             trigType = kTriggerFailure; 
+        }
+        else if ( ti->GetType(iTrig)==(int)TriggerType::eNoTrig )
+        {
+            trigType = kTriggerNoTrig; 
+            hitTimeOffset = 0;
         }
 
         if( iTrig>=1 )
@@ -216,6 +222,8 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
         }
 
         vector<Double_t> info(1, ti->GetNHits(iTrig));
+        info.push_back(hitTimeOffset);
+        info.push_back(ti->GetTriggerTime(iTrig));
         anEvent->SetTriggerInfo(trigType, info);
 
         const float triggerTime = ti->GetTriggerTime(iTrig);
@@ -249,7 +257,7 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
                     if( doFill ) 
                     {
                         vector<int> true_pe_comp = aPH->GetParentCompositionDigi(i);
-                        t = t +  fHitTimeOffset - triggerTime;
+                        t = t +  hitTimeOffset - triggerTime;
                         float q = aPH->GetChargeDigi(i);
                         anEvent->AddCherenkovDigiHit(q,
                                                      t,

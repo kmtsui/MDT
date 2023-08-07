@@ -9,6 +9,7 @@
 < FailurePreTriggerWindow = -400. >
 < FailureTime = 100. >
 < NDigitsWindow = 200. >
+< TriggerType = NoTrig >
 
 # Dark noise setting
 < NumOfTubes = 2014 >

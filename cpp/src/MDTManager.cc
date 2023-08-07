@@ -70,7 +70,7 @@ void MDTManager::DoTrigger(const string &pmtname)
 {
     if( this->HasThisPMTType(pmtname) )
     {
-        fTrigAlgo->NDigits(fPHC[pmtname], fTrigInfo[pmtname]);
+        fTrigAlgo->DoTrigger(fPHC[pmtname], fTrigInfo[pmtname]);
     }
 }
 
