@@ -91,6 +91,10 @@ int main(int argc, char **argv)
     }
     outData->WriteTree();
     inData->CloseFile();
+
+    // Copy geo trees, etc.
+    vector<string> listTrees{"Settings","wcsimGeoT","wcsimRootOptionsT"};
+    for (auto s:listTrees) outData->CopyTree(fInFileName.c_str(),s.c_str());
 }
 
 

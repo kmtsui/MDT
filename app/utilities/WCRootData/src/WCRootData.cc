@@ -381,61 +381,70 @@ void WCRootData::CopyTree(const char *filename,
     // Copy all the entries
     if( savelist.size()==0 )
     {
-        if( strcmp(treename,"Settings")!=0 )
-        {
-            TTree *tin = (TTree*)fin->Get(treename);
+        TTree *tin = (TTree*)fin->Get(treename);
 
-            TFile *fout = TFile::Open(fOutFileName, "update");
-            fout->cd();
-            TTree *tout = tin->CloneTree(-1, "fast");
-            tout->Write();
-            fout->Close();
-        }
-        else // This is a special treatment
-        {
-            TTree *tin = (TTree*)fin->Get(treename);
+        TFile *fout = TFile::Open(fOutFileName, "update");
+        fout->cd();
+        TTree *tout = tin->CloneTree(-1, "fast");
+        tout->Write();
+        fout->Close();
 
-            TBranch *bWCXRotation = tin->GetBranch("WCXRotation");
-            TBranch *bWCYRotation = tin->GetBranch("WCYRotation");
-            TBranch *bWCZRotation = tin->GetBranch("WCZRotation");
-            TBranch *bWCDetCentre = tin->GetBranch("WCDetCentre");
-            TBranch *bWCDetRadius = tin->GetBranch("WCDetRadius");
-            TBranch *bWCDetHeight = tin->GetBranch("WCDetHeight");
+        // Not sure why the special treatment is needed at the first place
+        // if( strcmp(treename,"Settings")!=0 )
+        // {
+        //     TTree *tin = (TTree*)fin->Get(treename);
 
-            Float_t WCXRotation[3] = {0.};
-            Float_t WCYRotation[3] = {0.};
-            Float_t WCZRotation[3] = {0.};
-            Float_t WCDetCentre[3] = {0.};
-            Float_t WCDetRadius = 0.;
-            Float_t WCDetHeight = 0.;
+        //     TFile *fout = TFile::Open(fOutFileName, "update");
+        //     fout->cd();
+        //     TTree *tout = tin->CloneTree(-1, "fast");
+        //     tout->Write();
+        //     fout->Close();
+        // }
+        // else // This is a special treatment
+        // {
+        //     TTree *tin = (TTree*)fin->Get(treename);
 
-            bWCXRotation->SetAddress(WCXRotation);
-            bWCYRotation->SetAddress(WCYRotation);
-            bWCZRotation->SetAddress(WCZRotation);
-            bWCDetCentre->SetAddress(WCDetCentre);
-            bWCDetRadius->SetAddress(&WCDetRadius);
-            bWCDetHeight->SetAddress(&WCDetHeight);
+        //     TBranch *bWCXRotation = tin->GetBranch("WCXRotation");
+        //     TBranch *bWCYRotation = tin->GetBranch("WCYRotation");
+        //     TBranch *bWCZRotation = tin->GetBranch("WCZRotation");
+        //     TBranch *bWCDetCentre = tin->GetBranch("WCDetCentre");
+        //     TBranch *bWCDetRadius = tin->GetBranch("WCDetRadius");
+        //     TBranch *bWCDetHeight = tin->GetBranch("WCDetHeight");
 
-            bWCXRotation->GetEntry(0);
-            bWCYRotation->GetEntry(0);
-            bWCZRotation->GetEntry(0);
-            bWCDetCentre->GetEntry(0);
-            bWCDetRadius->GetEntry(0);
-            bWCDetHeight->GetEntry(0);
+        //     Float_t WCXRotation[3] = {0.};
+        //     Float_t WCYRotation[3] = {0.};
+        //     Float_t WCZRotation[3] = {0.};
+        //     Float_t WCDetCentre[3] = {0.};
+        //     Float_t WCDetRadius = 0.;
+        //     Float_t WCDetHeight = 0.;
 
-            TFile *fout = TFile::Open(fOutFileName, "update");
-            fout->cd();
-            TTree *tout = new TTree("Settings", "");
-            tout->Branch("WCXRotation", WCXRotation, "WCXRotation[3]/F");
-            tout->Branch("WCYRotation", WCYRotation, "WCYRotation[3]/F");
-            tout->Branch("WCZRotation", WCZRotation, "WCZRotation[3]/F");
-            tout->Branch("WCDetCentre", WCDetCentre, "WCDetCentre[3]/F");
-            tout->Branch("WCDetRadius", &WCDetRadius, "WCDetRadius/F");
-            tout->Branch("WCDetHeight", &WCDetHeight, "WCDetHeight/F");
-            tout->Fill();
-            tout->Write();
-            fout->Close();
-        }
+        //     bWCXRotation->SetAddress(WCXRotation);
+        //     bWCYRotation->SetAddress(WCYRotation);
+        //     bWCZRotation->SetAddress(WCZRotation);
+        //     bWCDetCentre->SetAddress(WCDetCentre);
+        //     bWCDetRadius->SetAddress(&WCDetRadius);
+        //     bWCDetHeight->SetAddress(&WCDetHeight);
+
+        //     bWCXRotation->GetEntry(0);
+        //     bWCYRotation->GetEntry(0);
+        //     bWCZRotation->GetEntry(0);
+        //     bWCDetCentre->GetEntry(0);
+        //     bWCDetRadius->GetEntry(0);
+        //     bWCDetHeight->GetEntry(0);
+
+        //     TFile *fout = TFile::Open(fOutFileName, "update");
+        //     fout->cd();
+        //     TTree *tout = new TTree("Settings", "");
+        //     tout->Branch("WCXRotation", WCXRotation, "WCXRotation[3]/F");
+        //     tout->Branch("WCYRotation", WCYRotation, "WCYRotation[3]/F");
+        //     tout->Branch("WCZRotation", WCZRotation, "WCZRotation[3]/F");
+        //     tout->Branch("WCDetCentre", WCDetCentre, "WCDetCentre[3]/F");
+        //     tout->Branch("WCDetRadius", &WCDetRadius, "WCDetRadius/F");
+        //     tout->Branch("WCDetHeight", &WCDetHeight, "WCDetHeight/F");
+        //     tout->Fill();
+        //     tout->Write();
+        //     fout->Close();
+        // }
     }
     else
     {
