@@ -129,14 +129,14 @@ void TriggerAlgo::NDigits(HitTubeCollection *hc, TriggerInfo* ti)
 
         const double stepSize = fNDigitsStepSize; // in ns
         //const double tWindowMax = std::max(0.f, tLastHit - fNDigitsWindow); // in ns
-        const double tWindowMax = tLastHit - fNDigitsWindow + stepSize;
 
         double tWindowUp = 0.;
         //double tWindowLow = 0.;
         double tWindowLow = times[0];
         if (tWindowLow>0) tWindowLow = ((int)(tWindowLow/stepSize))*stepSize;
         else tWindowLow = ((int)(tWindowLow/stepSize)-1)*stepSize;
-
+        const double tWindowMax = std::max(tWindowLow, (double)(tLastHit - fNDigitsWindow)) + stepSize;
+        
         //  - Slide the time window with a width of "fNDigitsWindow"
         //    from "tWindowLow" to "tWindowMax"
         //    with a step size of "stepSize"
