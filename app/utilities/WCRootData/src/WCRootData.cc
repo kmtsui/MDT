@@ -327,6 +327,11 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
             start[j] = aTrack->GetStart(j);
         }
 
+        std::vector<std::vector<float>> bPs = aTrack->GetBoundaryPoints();
+        std::vector<float> bKEs = aTrack->GetBoundaryKEs();
+        std::vector<double> bTimes = aTrack->GetBoundaryTimes();
+        std::vector<int> bTypes = aTrack->GetBoundaryTypes();
+
         aEvtOut->AddTrack(ipnu, 
 			  flag, 
 			  m, 
@@ -341,7 +346,11 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
 			  parenttype,
 			  time,
 			  id,
-			  idPrnt);
+			  idPrnt,
+              bPs,
+              bKEs,
+              bTimes,
+              bTypes);
 
     }
 }
