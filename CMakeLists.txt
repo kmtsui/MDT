@@ -16,7 +16,11 @@ set( PUBLIC_EXT_LIBS )
 hk_check_dependencies()
 
 add_definitions(-DHYBRIDWCSIM)
-
+# manually include WCSim libraries
+list( APPEND PUBLIC_EXT_LIBS
+        WCSim::WCSimRoot
+        WCSim::WCSimCore
+)
 
 include_directories(BEFORE
         ${PROJECT_SOURCE_DIR}/cpp/include

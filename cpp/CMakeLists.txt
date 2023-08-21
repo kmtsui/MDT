@@ -1,10 +1,5 @@
 
-
-# Don't include Utilities
-#file(GLOB_RECURSE SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.cpp")
-#file(GLOB_RECURSE HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h")
-
-set (SRC 
+set (SRC
         src/Configuration.cc
         src/HitDigitizer.cc
         src/HitTube.cc
