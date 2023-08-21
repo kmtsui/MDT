@@ -1,10 +1,10 @@
 // Apply event trigger to a given set of dititized PMT hits (map<int, HitTube*>)
 // The resultant triggers are saved in a TrggerInfo class object
 #pragma once
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <vector>
-#include <algorithm>
 
 #include "HitTubeCollection.h"
 #include "TriggerInfo.h"
@@ -14,21 +14,23 @@ using std::endl;
 using std::map;
 using std::vector;
 
-class TriggerAlgo
-{
-    public:
-        TriggerAlgo();
-        virtual ~TriggerAlgo(){};
+class TriggerAlgo {
+	public:
 
-        void NDigits(HitTubeCollection*, TriggerInfo*);
-        float GetTriggerTimeForFailure() const { return fTriggerTimeForFailure; }
+		TriggerAlgo();
+		virtual ~TriggerAlgo() {};
 
-    private:       
-        map<TriggerType,float> fPreTriggerWindow;
-        map<TriggerType,float> fPostTriggerWindow;
-        float fTriggerOffsetTime; 
-        float fTriggerTimeForFailure;
-        float fNDigitsWindow;
-        float fNDigitsStepSize;
-        int   fNDigitsThreshold;
+		void NDigits(HitTubeCollection*, TriggerInfo*);
+
+		float GetTriggerTimeForFailure() const { return fTriggerTimeForFailure; }
+
+	private:
+
+		map<TriggerType, float> fPreTriggerWindow;
+		map<TriggerType, float> fPostTriggerWindow;
+		float fTriggerOffsetTime;
+		float fTriggerTimeForFailure;
+		float fNDigitsWindow;
+		float fNDigitsStepSize;
+		int fNDigitsThreshold;
 };

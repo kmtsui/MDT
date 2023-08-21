@@ -1,23 +1,24 @@
 #ifndef WCROOTDATA_IDNUINT_H
 #define WCROOTDATA_IDNUINT_H
 
-#include "WCRootDataNuInt.h"
 #include "RedNRTVtx_t.h"
+#include "WCRootDataNuInt.h"
 
 class WCRootDataNuInt;
 
-class WCRootDataIDNuInt : public WCRootDataNuInt
-{
-    public :
-        WCRootDataIDNuInt();
-        virtual ~WCRootDataIDNuInt();
+class WCRootDataIDNuInt : public WCRootDataNuInt {
+	public:
 
-        void LoadFiles(const char*);
-        void SetInteractionInformation(PileUpSpill_t*) const;
+		WCRootDataIDNuInt();
+		virtual ~WCRootDataIDNuInt();
 
-    private :
-        void ReadFriend(const char*);
-        void CloseFriend();
-        RedNRTVtx_t fNRTVtx;
+		void LoadFiles(const char*);
+		void SetInteractionInformation(PileUpSpill_t*) const;
+
+	private:
+
+		void ReadFriend(const char*);
+		void CloseFriend();
+		RedNRTVtx_t fNRTVtx;
 };
 #endif
