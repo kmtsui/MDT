@@ -1,79 +1,76 @@
 #ifndef WCROOTDATA_H
 #define WCROOTDATA_H
 
-#include <fstream>
 #include <iostream>
-#include <map>
-#include <string>
-#include <utility>
 #include <vector>
+#include <fstream>
+#include <string>
+#include <map>
+#include <utility>
 
-#include "TBranch.h"
-#include "TChain.h"
-#include "TClonesArray.h"
 #include "TFile.h"
+#include "TChain.h"
 #include "TTree.h"
+#include "TBranch.h"
+#include "TClonesArray.h"
 
-#include "TNRooTrackerVtx.hh"
 #include "WCSimRootEvent.hh"
 #include "WCSimRootGeom.hh"
+#include "TNRooTrackerVtx.hh"
 
 #include "MDTManager.h"
 
 using std::cout;
 using std::endl;
+using std::vector;
+using std::string;
 using std::map;
 using std::pair;
-using std::string;
-using std::vector;
 
-class WCRootData {
-	public:
+class WCRootData
+{
+    public:
+        WCRootData();
+        virtual ~WCRootData();
 
-		WCRootData();
-		virtual ~WCRootData();
+        void ReadFile(const char*, const vector<string> &v=vector<string>());
+        void CloseFile();
 
-		void ReadFile(const char*, const vector<string>& v = vector<string>());
-		void CloseFile();
+        void CreateTree(const char*, const vector<string> &v=vector<string>());
+        virtual void FillTree();
+        virtual void WriteTree();
 
-		void CreateTree(const char*, const vector<string>& v = vector<string>());
-		virtual void FillTree();
-		virtual void WriteTree();
+        void GetGeometryInfo(const char*);
+        void CopyTree(const char*, const char*, const vector<bool>&v=vector<bool>());
+        void SetOutFileName(const char *f){ fOutFileName = TString(f); }
 
-		void GetGeometryInfo(const char*);
-		void CopyTree(const char*, const char*, const vector<bool>& v = vector<bool>());
+        int GetEntries();
+        void GetEntry(int);
 
-		void SetOutFileName(const char* f) { fOutFileName = TString(f); }
+        WCSimRootTrigger *GetTrigger(int i, int iPMT=0) const { return fSpEvt[iPMT]->GetTrigger(i); }
 
-		int GetEntries();
-		void GetEntry(int);
+        void AddTrueHitsToMDT(MDTManager*);
+        void AddTrueHitsToMDT(HitTubeCollection*, PMTResponse*, float offset_time=0., int iPMT=0);
+        void AddDigiHits(MDTManager*, int event_id=0, int iPMT=0);
+        void AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int even_it=0, int iPMT=0);
+        void AddTracks(const WCSimRootTrigger*, float offset_time=0., int iPMT=0);
 
-		WCSimRootTrigger* GetTrigger(int i, int iPMT = 0) const { return fSpEvt[iPMT]->GetTrigger(i); }
+        const char *GetCurrentInputFileName() const { return fWCSimC->GetFile()->GetName(); }
 
-		void AddTrueHitsToMDT(MDTManager*);
-		void AddTrueHitsToMDT(HitTubeCollection*, PMTResponse*, float offset_time = 0., int iPMT = 0);
-		void AddDigiHits(MDTManager*, int event_id = 0, int iPMT = 0);
-		void AddDigiHits(HitTubeCollection* hc, TriggerInfo* ti, int even_it = 0, int iPMT = 0);
-		void AddTracks(const WCSimRootTrigger*, float offset_time = 0., int iPMT = 0);
+    protected:
+        TChain *fWCSimC;
+        TTree *fWCSimT;
+        vector<WCSimRootEvent*> fSpEvt;
+        WCSimRootGeom *fWCGeom;
 
-		const char* GetCurrentInputFileName() const { return fWCSimC->GetFile()->GetName(); }
+        Float_t fDetCentreY;
 
-	protected:
+        float fHitTimeOffset;
+        bool fMultDigiHits;
 
-		TChain* fWCSimC;
-		TTree* fWCSimT;
-		vector<WCSimRootEvent*> fSpEvt;
-		WCSimRootGeom* fWCGeom;
-
-		Float_t fDetCentreY;
-
-		float fHitTimeOffset;
-		bool fMultDigiHits;
-
-	private:
-
+    private:
 		void SetTubes(HitTubeCollection*, const int);
-		TString fOutFileName;
+        TString fOutFileName;
 };
 
 #endif

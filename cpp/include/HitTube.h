@@ -1,12 +1,12 @@
-// This class manages informaion about both true and digitized hits
+// This class manages informaion about both true and digitized hits 
 // This class assumed to be instanceated for each PMT
 // The following information is stored:
 //
 //  - true hits (just photoelectrons)
 //      - number of true hits
-//      - true hit time
-//      - parent charged particle ID
-//          - negative value for noise
+//      - true hit time 
+//      - parent charged particle ID 
+//          - negative value for noise 
 //
 //  - digitized hits
 //      - number of digitized hits
@@ -16,78 +16,70 @@
 
 #pragma once
 
-#include <algorithm>
 #include <vector>
+#include <algorithm>
 
 #include "TrueHit.h"
 using std::vector;
 
-class HitTube {
-	public:
-
-		HitTube(int);
-		virtual ~HitTube();
-
-		void SetTubeID(const int i) { fTubeID = i; }
-
-		int GetTubeID() const { return fTubeID; }
-
+class HitTube
+{
+    public: 
+        HitTube(int);
+        virtual ~HitTube();
+        void SetTubeID(const int i){ fTubeID = i; }
+        int GetTubeID() const { return fTubeID; }
 		float GetPosition(int i) const { return fPosition[i]; }
-
 		float GetOrientation(int i) const { return fOrientation[i]; }
-
 		void SetPosition(int i, float f) { fPosition[i] = f; }
-
 		void SetOrientation(int i, float f) { fOrientation[i] = f; }
 
-		void AddRawPE(const float t, const int id = 9999999) {
-			fPhotoElectrons.push_back(new TrueHit(t, id));
-			fNRawPE += 1;
-		}
 
-		void AddRawPE(TrueHit* th) {
-			fPhotoElectrons.push_back(th);
-			fNRawPE += 1;
-		}
+        void AddRawPE(const float t, const int id=9999999)
+            { 
+                fPhotoElectrons.push_back(new TrueHit(t, id));
+                fNRawPE+=1; 
+            }
+        void AddRawPE(TrueHit* th)
+            { 
+                fPhotoElectrons.push_back(th);
+                fNRawPE+=1; 
+            }
+        int GetNRawPE() const { return fNRawPE; }
+        float GetTimeRaw(const int i) const { return fPhotoElectrons[i]->GetTime(); }
+        void SortTrueHits()
+        {
+            std::sort(fPhotoElectrons.begin(),
+              fPhotoElectrons.end(), 
+              [](const TrueHit* left, const TrueHit* right)
+              { return left->GetTime() < right->GetTime(); }
+             );
+        }
+        const vector<TrueHit*>& GetPhotoElectrons() const { return fPhotoElectrons; }
 
-		int GetNRawPE() const { return fNRawPE; }
+        void AddDigiHit(const float t, const float q, const vector<int> &id=vector<int>())
+            {
+                fTimeDigi.push_back( t );
+                fChargeDigi.push_back( q );
+                fParentCompDigi.push_back( id );
+                fNDigiHits+=1;
+            }
 
-		float GetTimeRaw(const int i) const { return fPhotoElectrons[i]->GetTime(); }
+        int GetNDigiHits() const { return fNDigiHits; }
+        float GetTimeDigi(const int i) const { return fTimeDigi[i]; }
+        float GetChargeDigi(const int i) const { return fChargeDigi[i]; }
+        const vector<int>& GetParentCompositionDigi(const int i) const { return fParentCompDigi[i]; }
 
-		void SortTrueHits() {
-			std::sort(
-			    fPhotoElectrons.begin(),
-			    fPhotoElectrons.end(),
-			    [](const TrueHit* left, const TrueHit* right) { return left->GetTime() < right->GetTime(); });
-		}
+        
+    private:
+        int fNRawPE;
+        vector<TrueHit*> fPhotoElectrons;
 
-		const vector<TrueHit*>& GetPhotoElectrons() const { return fPhotoElectrons; }
-
-		void AddDigiHit(const float t, const float q, const vector<int>& id = vector<int>()) {
-			fTimeDigi.push_back(t);
-			fChargeDigi.push_back(q);
-			fParentCompDigi.push_back(id);
-			fNDigiHits += 1;
-		}
-
-		int GetNDigiHits() const { return fNDigiHits; }
-
-		float GetTimeDigi(const int i) const { return fTimeDigi[i]; }
-
-		float GetChargeDigi(const int i) const { return fChargeDigi[i]; }
-
-		const vector<int>& GetParentCompositionDigi(const int i) const { return fParentCompDigi[i]; }
-
-	private:
-
-		int fNRawPE;
-		vector<TrueHit*> fPhotoElectrons;
-
-		int fTubeID;
-		int fNDigiHits;
+        int fTubeID;
+        int fNDigiHits;
 		float fPosition[3];
 		float fOrientation[3];
-		vector<float> fTimeDigi;
-		vector<float> fChargeDigi;
-		vector<vector<int>> fParentCompDigi;
+        vector<float> fTimeDigi;
+        vector<float> fChargeDigi;
+        vector<vector<int>> fParentCompDigi;
 };

@@ -2,65 +2,61 @@
 #define WCROOTDATANUINT_H
 
 #include <sstream>
-#include "PileUpSpill_t.h"
 #include "TRandom3.h"
 #include "WCRootData.h"
+#include "PileUpSpill_t.h"
 
 using std::stringstream;
 
 class WCRootData;
 
-enum ENuIntType { eIDNuInt = 0, eBeamBkg, eSingle };
+enum ENuIntType{ eIDNuInt=0,
+                 eBeamBkg,
+                 eSingle
+               };
 
-class WCRootDataNuInt : public WCRootData {
-	public:
+class WCRootDataNuInt : public WCRootData
+{
+    public:
+        WCRootDataNuInt();
+        virtual ~WCRootDataNuInt();
 
-		WCRootDataNuInt();
-		virtual ~WCRootDataNuInt();
+        void SetSeed(const int i){ fRnd->SetSeed(i); }
+        void LoadFiles(const char*); 
+        virtual bool Next();
 
-		void SetSeed(const int i) { fRnd->SetSeed(i); }
+        void SetNDigitsFileIDNumber(int i){ fNDigitsFileIdNum = i; }
+        int GetEventIdNumber() const { return fItrEntry-1; }
+        int GetFileIdNumber() const { return fFileIdNum; }
 
-		void LoadFiles(const char*);
-		virtual bool Next();
+        void SetInteractionRate(const float f)  { fIntRate = f; }
+        int DrawNumOfInteraction() const { return fRnd->Poisson(fIntRate); }
 
-		void SetNDigitsFileIDNumber(int i) { fNDigitsFileIdNum = i; }
+        unsigned GetInteractionType() const { return fNuIntType; }
+        virtual float GetEnergyDepositionInOD() const { return 0.; }
+        virtual void SetInteractionInformation(PileUpSpill_t*) const {};
 
-		int GetEventIdNumber() const { return fItrEntry - 1; }
+    protected:
+        int GetFileIdNumber(const char*, const char *prefix="wcsim.");
 
-		int GetFileIdNumber() const { return fFileIdNum; }
+        virtual void ReadFriend(const char* f){ cout<<" Reading friend: " << f <<endl; };
+        virtual void CloseFriend(){};
 
-		void SetInteractionRate(const float f) { fIntRate = f; }
+        TRandom3 *fRnd;
+        std::vector<pair<TString, int>> fFileList; 
+        std::vector<pair<TString, int>> fFriendList; 
+        TChain *fFriendC;
 
-		int DrawNumOfInteraction() const { return fRnd->Poisson(fIntRate); }
+        bool fHasFriend;
+        unsigned int fNuIntType;
+        
 
-		unsigned GetInteractionType() const { return fNuIntType; }
-
-		virtual float GetEnergyDepositionInOD() const { return 0.; }
-
-		virtual void SetInteractionInformation(PileUpSpill_t*) const {};
-
-	protected:
-
-		int GetFileIdNumber(const char*, const char* prefix = "wcsim.");
-
-		virtual void ReadFriend(const char* f) { cout << " Reading friend: " << f << endl; };
-
-		virtual void CloseFriend() {};
-
-		TRandom3* fRnd;
-		std::vector<pair<TString, int>> fFileList;
-		std::vector<pair<TString, int>> fFriendList;
-		TChain* fFriendC;
-
-		bool fHasFriend;
-		unsigned int fNuIntType;
-
-		int fItrEntry;
-		int fItrFile;
-		int fNumEntries;
-		int fNumFiles;
-		int fFileIdNum;
-		int fNDigitsFileIdNum;
-		float fIntRate;
+        int fItrEntry;          
+        int fItrFile;
+        int fNumEntries;
+        int fNumFiles;
+        int fFileIdNum; 
+        int fNDigitsFileIdNum;
+        float fIntRate;
 };
 #endif

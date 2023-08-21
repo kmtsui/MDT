@@ -1,56 +1,53 @@
 #ifndef WCROOTDATAPILEUPSPILL_H
 #define WCROOTDATAPILEUPSPILL_H
 
-#include <iomanip>
 #include <sstream>
+#include <iomanip>
 
-#include "PileUpSpill_t.h"
 #include "WCRootData.h"
+#include "PileUpSpill_t.h"
 
 using std::stringstream;
 class WCRootDataNuInt;
 
-class WCRootDataPileUpSpill : public WCRootData {
-	public:
+class WCRootDataPileUpSpill : public WCRootData
+{
+    public:
+        WCRootDataPileUpSpill();
+        virtual ~WCRootDataPileUpSpill();
 
-		WCRootDataPileUpSpill();
-		virtual ~WCRootDataPileUpSpill();
+        // For reading
+        void ReadFile(const char*);
+        void CloseFile();
+        int GetEntries();
+        void GetEntry(const int);
+        const PileUpSpill_t *GetPileUpSpill() const {return &fPupSpill;}
 
-		// For reading
-		void ReadFile(const char*);
-		void CloseFile();
-		int GetEntries();
-		void GetEntry(const int);
+        void AddDigiHitsToMDT(MDTManager*, float, float, float);
 
-		const PileUpSpill_t* GetPileUpSpill() const { return &fPupSpill; }
+        // For writing 
+       // void SetOutFilePrefix(const char *f){ fOutFilePrefix = TString(f); }
+        void CreateTree(const char *f=0);
+        void FillTree();
+        void WriteTree();
+        void AddInteraction(const WCRootDataNuInt*, float offset_time=0., int bunch_id=99999);
 
-		void AddDigiHitsToMDT(MDTManager*, float, float, float);
+        void SetNumOfSpillesSavedPerFile(const int i){ fNumOfSpillsPerFile = i; }
+        void SetFileNameForCopyTree(const char *f){ fFileNameToBeCopied = TString(f); }
 
-		// For writing
-		// void SetOutFilePrefix(const char *f){ fOutFilePrefix = TString(f); }
-		void CreateTree(const char* f = 0);
-		void FillTree();
-		void WriteTree();
-		void AddInteraction(const WCRootDataNuInt*, float offset_time = 0., int bunch_id = 99999);
+    private:
+        void GetOutFileIdNumber(const int, TString&);
 
-		void SetNumOfSpillesSavedPerFile(const int i) { fNumOfSpillsPerFile = i; }
+        TString fOutFilePrefix;
+        TString fPupSpillTreeName;
+        int fOutFileNum; 
+        int fNumOfSpillsPerFile;
+        int fCurSpill;
 
-		void SetFileNameForCopyTree(const char* f) { fFileNameToBeCopied = TString(f); }
+        PileUpSpill_t fPupSpill;
+        TTree *fPupSpillT;
+        TChain *fPupSpillC;
 
-	private:
-
-		void GetOutFileIdNumber(const int, TString&);
-
-		TString fOutFilePrefix;
-		TString fPupSpillTreeName;
-		int fOutFileNum;
-		int fNumOfSpillsPerFile;
-		int fCurSpill;
-
-		PileUpSpill_t fPupSpill;
-		TTree* fPupSpillT;
-		TChain* fPupSpillC;
-
-		TString fFileNameToBeCopied;
+        TString fFileNameToBeCopied;
 };
 #endif

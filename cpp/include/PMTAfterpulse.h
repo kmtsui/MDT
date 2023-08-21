@@ -1,9 +1,9 @@
 #pragma once
 
-#include <fstream>
 #include <iostream>
-#include <sstream>
+#include <fstream>
 #include <string>
+#include <sstream>
 
 #include "MTRandom.h"
 
@@ -13,26 +13,26 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-class PMTAfterpulse {
-	public:
+class PMTAfterpulse
+{
+    public:
+        PMTAfterpulse();
+        virtual ~PMTAfterpulse();
 
-		PMTAfterpulse();
-		virtual ~PMTAfterpulse();
+        bool GenerateAfterpulse(const float, const vector<int>&, MTRandom*);
+        float GetAfterpulseTime(const float, MTRandom*);
 
-		bool GenerateAfterpulse(const float, const vector<int>&, MTRandom*);
-		float GetAfterpulseTime(const float, MTRandom*);
+    
+    private:
+        void LoadTimingCDF(const string&);
 
-	private:
+        vector<double> fCDF_BinEdgeLow;
+        vector<double> fCDF_BinEdgeUp;
+        vector<double> fCDF_BinCenter;
+        vector<double> fCDF;
+        float fSlope; 
+        float fIntercept;
 
-		void LoadTimingCDF(const string&);
-
-		vector<double> fCDF_BinEdgeLow;
-		vector<double> fCDF_BinEdgeUp;
-		vector<double> fCDF_BinCenter;
-		vector<double> fCDF;
-		float fSlope;
-		float fIntercept;
-
-		int fDoAdd;
-		string fTxtFileCDF;
+        int fDoAdd;
+        string fTxtFileCDF;
 };
