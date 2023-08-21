@@ -7,3 +7,7 @@ appWCTESingleEvent
 
 # root file
 *.root
+
+.idea
+build-*
+install-*
