@@ -1,71 +1,75 @@
 #pragma once
 
-#include <iostream>
-#include <vector>
-#include <cstdlib>
-#include <utility>
 #include <algorithm>
+#include <cstdlib>
+#include <iostream>
 #include <map>
 #include <string>
+#include <utility>
+#include <vector>
 
-#include "MTRandom.h"
 #include "HitTubeCollection.h"
+#include "MTRandom.h"
 #include "PMTAfterpulse.h"
 
 using std::cout;
 using std::endl;
-using std::vector;
-using std::pair;
 using std::map;
+using std::pair;
 using std::string;
+using std::vector;
 
 class HitDigitizer;
 class PMTResponse;
 
-class PMTNoise 
-{
-    public :
-        PMTNoise(const int, const string &s="");
-        virtual ~PMTNoise();
+class PMTNoise {
+	public:
 
-        void SetNumberOfPMTs(const int);
-        void SetMinTubeID(const int);
-        void SetMaxTubeID(const int);
-        void SetWindowLow(const double /* ns */);
-        void SetWindowUp(const double /* ns */);
-        void SetDarkRate(const double /* kHz */);
-        void SetDarkMode(const int i){ fDarkMode = i; }
+		PMTNoise(const int, const string& s = "");
+		virtual ~PMTNoise();
 
-        void GenerateDarkNoise(double, double, bool isDPE=false, const bool verbose=false);
-        int GetNumberOfGeneratedDarkHits() const;
-        int GetNumberOfGeneratedDarkPhotoElectrons() const;
-        int GetNoiseTube(const int i) const { return fNoisePMT[i]; }
-        double GetNoiseTime(const int i) const { return fNoiseTime[i]; }
+		void SetNumberOfPMTs(const int);
+		void SetMinTubeID(const int);
+		void SetMaxTubeID(const int);
+		void SetWindowLow(const double /* ns */);
+		void SetWindowUp(const double /* ns */);
+		void SetDarkRate(const double /* kHz */);
 
-        void AddPhotoElectrons(HitTubeCollection*);
-        void Add(HitTubeCollection*, double, double);
-        void FindRanges(HitTubeCollection*, vector<pair<double, double>>&);
+		void SetDarkMode(const int i) { fDarkMode = i; }
 
-        void AddAfterpulse(HitTubeCollection*, HitDigitizer*, PMTResponse *pr);
+		void GenerateDarkNoise(double, double, bool isDPE = false, const bool verbose = false);
+		int GetNumberOfGeneratedDarkHits() const;
+		int GetNumberOfGeneratedDarkPhotoElectrons() const;
 
-    private :
-        MTRandom *fRand;
-        int fNPMTs;
-        int fMinTubeID;
-        int fMaxTubeID;
-        float fWinLow;
-        float fWinUp;
-        float fDarkRate;
-        float fAveNoise;
-        float fConvRate;
-        float fWindow;
-        int fDarkMode;
+		int GetNoiseTube(const int i) const { return fNoisePMT[i]; }
 
-        int fNnoise;
-        vector<int> fNoisePMT;
-        vector<double> fNoiseTime;
+		double GetNoiseTime(const int i) const { return fNoiseTime[i]; }
 
-        PMTAfterpulse *fAftpulse;
+		void AddPhotoElectrons(HitTubeCollection*);
+		void Add(HitTubeCollection*, double, double);
+		void FindRanges(HitTubeCollection*, vector<pair<double, double>>&);
 
-        string fPMTType;
+		void AddAfterpulse(HitTubeCollection*, HitDigitizer*, PMTResponse* pr);
+
+	private:
+
+		MTRandom* fRand;
+		int fNPMTs;
+		int fMinTubeID;
+		int fMaxTubeID;
+		float fWinLow;
+		float fWinUp;
+		float fDarkRate;
+		float fAveNoise;
+		float fConvRate;
+		float fWindow;
+		int fDarkMode;
+
+		int fNnoise;
+		vector<int> fNoisePMT;
+		vector<double> fNoiseTime;
+
+		PMTAfterpulse* fAftpulse;
+
+		string fPMTType;
 };

@@ -5,20 +5,22 @@
 
 class WCRootDataNuInt;
 
-class WCRootDataBeamBkg : public WCRootDataNuInt
-{
-    public :
-        WCRootDataBeamBkg();
-        virtual ~WCRootDataBeamBkg();
+class WCRootDataBeamBkg : public WCRootDataNuInt {
+	public:
 
-        void LoadFiles(const char *);
-        float GetEnergyDepositionInOD() const { return fEdepoOD; }
+		WCRootDataBeamBkg();
+		virtual ~WCRootDataBeamBkg();
 
-    private :
-        void ReadFriend(const char*);
-        void CloseFriend();
+		void LoadFiles(const char*);
 
-        Int_t fgrNPart;
-        Float_t fEdepoOD;
+		float GetEnergyDepositionInOD() const { return fEdepoOD; }
+
+	private:
+
+		void ReadFriend(const char*);
+		void CloseFriend();
+
+		Int_t fgrNPart;
+		Float_t fEdepoOD;
 };
 #endif

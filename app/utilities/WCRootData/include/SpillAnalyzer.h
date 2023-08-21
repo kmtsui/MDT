@@ -8,14 +8,17 @@ using std::endl;
 
 class WCRootDataPileUpSpill;
 
-class SpillAnalyzer
-{
-    public:
-        SpillAnalyzer();
-        virtual ~SpillAnalyzer();
+class SpillAnalyzer {
+	public:
 
-        bool IsSingleIDIneractionAtBunch(const WCRootDataPileUpSpill*, const int, int&);
-        bool HasMichelEFromOtherInteractionAtBunch(const WCRootDataPileUpSpill*, const int, const float, const float);
+		SpillAnalyzer();
+		virtual ~SpillAnalyzer();
+
+		bool IsSingleIDIneractionAtBunch(const WCRootDataPileUpSpill*, const int, int&);
+		bool HasMichelEFromOtherInteractionAtBunch(const WCRootDataPileUpSpill*,
+		                                           const int,
+		                                           const float,
+		                                           const float);
 };
 
 #endif
