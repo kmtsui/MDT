@@ -10,6 +10,7 @@ WCRootData::WCRootData()
     fWCSimC = 0;
     fWCSimT = 0;
     fSpEvt.clear();
+    isOD.clear();
     fOutFileName = "";
 
     int mult_flag = 1;
@@ -29,6 +30,8 @@ WCRootData::~WCRootData()
     if( fWCSimC ){ delete fWCSimC; fWCSimC = 0; }
     fSpEvt.clear();
     fSpEvt.shrink_to_fit();
+    isOD.clear();
+    isOD.shrink_to_fit();
 }
 
 
@@ -61,8 +64,6 @@ void WCRootData::AddTrueHitsToMDT(HitTubeCollection *hc, PMTResponse *pr, float 
     const WCSimRootTrigger *aEvt = fSpEvt[iPMT]->GetTrigger(0);
     const int nCkovHits = aEvt->GetNcherenkovhits();
 	//std::cout<<" nCkovHits: " << nCkovHits <<std::endl;
-	float pmt_position[3];
-	float pmt_orientation[3];
     TClonesArray *hitTimeArray = aEvt->GetCherenkovHitTimes();
     for(int iHit=0; iHit<nCkovHits; iHit++)
     {
@@ -83,11 +84,11 @@ void WCRootData::AddTrueHitsToMDT(HitTubeCollection *hc, PMTResponse *pr, float 
             if( aHitTime->GetParentID()<0 ){ continue; }
 
             TrueHit *th = new TrueHit(truetime, aHitTime->GetParentID());
-#ifdef HYBRIDWCSIM
+
             for(int k=0; k<3; k++){ th->SetPosition(k, aHitTime->GetPhotonEndPos(k)); }
             for(int k=0; k<3; k++){ th->SetDirection(k, aHitTime->GetPhotonEndDir(k)); }
             for(int k=0; k<3; k++){ th->SetStartDirection(k, aHitTime->GetPhotonStartDir(k)); }
-#endif
+
             th->SetStartTime(aHitTime->GetPhotonStartTime());
             for(int k=0; k<3; k++){ th->SetStartPosition(k, aHitTime->GetPhotonStartPos(k)); }
             if( !pr->ApplyDE(th) ){ continue; }
@@ -112,15 +113,19 @@ void WCRootData::ReadFile(const char *filename, const vector<string> &list)
     if( list.size()==0 ) // default
     {
         fSpEvt.push_back( 0 );
+        isOD.push_back(false);
         fWCSimC->SetBranchAddress("wcsimrootevent", &fSpEvt[0]);
     }
     else
     {
         fSpEvt.clear();
         fSpEvt = vector<WCSimRootEvent*>(list.size(),0);
+        isOD.clear();
+        isOD = vector<bool>(list.size(),false);
         for(unsigned int i=0; i<list.size(); i++)
         {
             fWCSimC->SetBranchAddress(list[i].c_str(), &fSpEvt[i]);
+            if ( list[i].find("OD")!=std::string::npos ) isOD[i] = true;
         }
     }
     fWCSimC->SetAutoDelete();
@@ -131,6 +136,8 @@ void WCRootData::CloseFile()
     delete fWCSimC; fWCSimC = 0;
     fSpEvt.clear();
     fSpEvt.shrink_to_fit();
+    isOD.clear();
+    isOD.shrink_to_fit();
 }
 
 int WCRootData::GetEntries() 
@@ -161,19 +168,22 @@ void WCRootData::CreateTree(const char *filename, const vector<string> &list)
         fSpEvt.push_back( new WCSimRootEvent() );
         fSpEvt[0]->Initialize();
         TTree::SetBranchStyle(branchStyle);
-        TBranch *branch = fWCSimT->Branch(bName, bAddress, &fSpEvt[0], bufferSize, 2);
+        fWCSimT->Branch(bName, bAddress, &fSpEvt[0], bufferSize, 2);
     }
     else  
     {
         fSpEvt.clear();
         fSpEvt = vector<WCSimRootEvent*>(list.size(), 0);
+        isOD.clear();
+        isOD = vector<bool>(list.size(),false);
         for(unsigned int i=0; i<list.size(); i++)
         {
 //            fSpEvt.push_back( new WCSimRootEvent() );
             fSpEvt[i] = new WCSimRootEvent();
             fSpEvt[i]->Initialize();
             TTree::SetBranchStyle(branchStyle);
-            TBranch *branch = fWCSimT->Branch(list[i].c_str(), bAddress, &fSpEvt[i], bufferSize, 2);
+            fWCSimT->Branch(list[i].c_str(), bAddress, &fSpEvt[i], bufferSize, 2);
+            if ( list[i].find("OD")!=std::string::npos ) isOD[i] = true;
         }
     }
 }
@@ -192,9 +202,15 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
     for(int iTrig=0; iTrig<nTriggers; iTrig++) 
     {
         TriggerType_t trigType = kTriggerNDigits;
+        float hitTimeOffset = fHitTimeOffset;
         if( ti->GetType(iTrig)==(int)TriggerType::eFailure )
         {
             trigType = kTriggerFailure; 
+        }
+        else if ( ti->GetType(iTrig)==(int)TriggerType::eNoTrig )
+        {
+            trigType = kTriggerNoTrig; 
+            hitTimeOffset = 0;
         }
 
         if( iTrig>=1 )
@@ -205,11 +221,9 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
             anEvent->SetMode(0);
         }
 
-#ifdef HYBRIDWCSIM
         vector<Double_t> info(1, ti->GetNHits(iTrig));
-#else
-        vector<Float_t> info(1, ti->GetNHits(iTrig));
-#endif
+        info.push_back(hitTimeOffset);
+        info.push_back(ti->GetTriggerTime(iTrig));
         anEvent->SetTriggerInfo(trigType, info);
 
         const float triggerTime = ti->GetTriggerTime(iTrig);
@@ -243,7 +257,7 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
                     if( doFill ) 
                     {
                         vector<int> true_pe_comp = aPH->GetParentCompositionDigi(i);
-                        t = t +  fHitTimeOffset - triggerTime;
+                        t = t +  hitTimeOffset - triggerTime;
                         float q = aPH->GetChargeDigi(i);
                         anEvent->AddCherenkovDigiHit(q,
                                                      t,
@@ -269,7 +283,6 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
 
 void WCRootData::FillTree()
 {
-    int tmp = (int)fSpEvt.size();
     TFile *f = fWCSimT->GetCurrentFile();
     f->cd();
     fWCSimT->Fill();     
@@ -295,12 +308,9 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
         Int_t     stopvol = aTrack->GetStopvol();
         Int_t     parenttype = aTrack->GetParenttype();
         Int_t     id = aTrack->GetId();
-#ifdef HYBRIDWCSIM
         Int_t     idPrnt = aTrack->GetParentId();
-#endif
 
 
-#ifdef HYBRIDWCSIM
         Double_t   dir[3];
         Double_t   pdir[3];
         Double_t   stop[3];
@@ -309,16 +319,6 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
         Double_t   p = aTrack->GetP();
         Double_t   E = aTrack->GetE();
         Double_t   time = aTrack->GetTime() + offset_time;
-#else 
-        Float_t   dir[3];
-        Float_t   pdir[3];
-        Float_t   stop[3];
-        Float_t   start[3];
-        Float_t   m = aTrack->GetM();
-        Float_t   p = aTrack->GetP();
-        Float_t   E = aTrack->GetE();
-        Float_t   time = aTrack->GetTime() + offset_time;
-#endif
         for(int j=0; j<3; j++)
         {
             dir[j] = aTrack->GetDir(j); 
@@ -327,7 +327,11 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
             start[j] = aTrack->GetStart(j);
         }
 
-#ifdef HYBRIDWCSIM
+        std::vector<std::vector<float>> bPs = aTrack->GetBoundaryPoints();
+        std::vector<float> bKEs = aTrack->GetBoundaryKEs();
+        std::vector<double> bTimes = aTrack->GetBoundaryTimes();
+        std::vector<int> bTypes = aTrack->GetBoundaryTypes();
+
         aEvtOut->AddTrack(ipnu, 
 			  flag, 
 			  m, 
@@ -342,39 +346,11 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
 			  parenttype,
 			  time,
 			  id,
-			  idPrnt);
-#else
-        aEvtOut->AddTrack(ipnu, 
-			  flag, 
-			  m, 
-			  p, 
-			  E, 
-			  startvol, 
-			  stopvol, 
-			  dir, 
-			  pdir, 
-			  stop,
-			  start,
-			  parenttype,
-			  time,
-			  id);
-#endif
-
-  WCSimRootTrack         *AddTrack(Int_t ipnu, 
-				   Int_t flag, 
-				   Float_t m, 
-				   Float_t p, 
-				   Float_t E, 
-				   Int_t startvol, 
-				   Int_t stopvol, 
-				   Float_t dir[3], 
-				   Float_t pdir[3], 
-				   Float_t stop[3],
-				   Float_t start[3],
-				   Int_t parenttype,
-				   Float_t time,
-				   Int_t id);
-
+			  idPrnt,
+              bPs,
+              bKEs,
+              bTimes,
+              bTypes);
 
     }
 }
@@ -405,61 +381,70 @@ void WCRootData::CopyTree(const char *filename,
     // Copy all the entries
     if( savelist.size()==0 )
     {
-        if( treename!="Settings" )
-        {
-            TTree *tin = (TTree*)fin->Get(treename);
+        TTree *tin = (TTree*)fin->Get(treename);
 
-            TFile *fout = TFile::Open(fOutFileName, "update");
-            fout->cd();
-            TTree *tout = tin->CloneTree(-1, "fast");
-            tout->Write();
-            fout->Close();
-        }
-        else // This is a special treatment
-        {
-            TTree *tin = (TTree*)fin->Get(treename);
+        TFile *fout = TFile::Open(fOutFileName, "update");
+        fout->cd();
+        TTree *tout = tin->CloneTree(-1, "fast");
+        tout->Write();
+        fout->Close();
 
-            TBranch *bWCXRotation = tin->GetBranch("WCXRotation");
-            TBranch *bWCYRotation = tin->GetBranch("WCYRotation");
-            TBranch *bWCZRotation = tin->GetBranch("WCZRotation");
-            TBranch *bWCDetCentre = tin->GetBranch("WCDetCentre");
-            TBranch *bWCDetRadius = tin->GetBranch("WCDetRadius");
-            TBranch *bWCDetHeight = tin->GetBranch("WCDetHeight");
+        // Not sure why the special treatment is needed at the first place
+        // if( strcmp(treename,"Settings")!=0 )
+        // {
+        //     TTree *tin = (TTree*)fin->Get(treename);
 
-            Float_t WCXRotation[3] = {0.};
-            Float_t WCYRotation[3] = {0.};
-            Float_t WCZRotation[3] = {0.};
-            Float_t WCDetCentre[3] = {0.};
-            Float_t WCDetRadius = 0.;
-            Float_t WCDetHeight = 0.;
+        //     TFile *fout = TFile::Open(fOutFileName, "update");
+        //     fout->cd();
+        //     TTree *tout = tin->CloneTree(-1, "fast");
+        //     tout->Write();
+        //     fout->Close();
+        // }
+        // else // This is a special treatment
+        // {
+        //     TTree *tin = (TTree*)fin->Get(treename);
 
-            bWCXRotation->SetAddress(WCXRotation);
-            bWCYRotation->SetAddress(WCYRotation);
-            bWCZRotation->SetAddress(WCZRotation);
-            bWCDetCentre->SetAddress(WCDetCentre);
-            bWCDetRadius->SetAddress(&WCDetRadius);
-            bWCDetHeight->SetAddress(&WCDetHeight);
+        //     TBranch *bWCXRotation = tin->GetBranch("WCXRotation");
+        //     TBranch *bWCYRotation = tin->GetBranch("WCYRotation");
+        //     TBranch *bWCZRotation = tin->GetBranch("WCZRotation");
+        //     TBranch *bWCDetCentre = tin->GetBranch("WCDetCentre");
+        //     TBranch *bWCDetRadius = tin->GetBranch("WCDetRadius");
+        //     TBranch *bWCDetHeight = tin->GetBranch("WCDetHeight");
 
-            bWCXRotation->GetEntry(0);
-            bWCYRotation->GetEntry(0);
-            bWCZRotation->GetEntry(0);
-            bWCDetCentre->GetEntry(0);
-            bWCDetRadius->GetEntry(0);
-            bWCDetHeight->GetEntry(0);
+        //     Float_t WCXRotation[3] = {0.};
+        //     Float_t WCYRotation[3] = {0.};
+        //     Float_t WCZRotation[3] = {0.};
+        //     Float_t WCDetCentre[3] = {0.};
+        //     Float_t WCDetRadius = 0.;
+        //     Float_t WCDetHeight = 0.;
 
-            TFile *fout = TFile::Open(fOutFileName, "update");
-            fout->cd();
-            TTree *tout = new TTree("Settings", "");
-            tout->Branch("WCXRotation", WCXRotation, "WCXRotation[3]/F");
-            tout->Branch("WCYRotation", WCYRotation, "WCYRotation[3]/F");
-            tout->Branch("WCZRotation", WCZRotation, "WCZRotation[3]/F");
-            tout->Branch("WCDetCentre", WCDetCentre, "WCDetCentre[3]/F");
-            tout->Branch("WCDetRadius", &WCDetRadius, "WCDetRadius/F");
-            tout->Branch("WCDetHeight", &WCDetHeight, "WCDetHeight/F");
-            tout->Fill();
-            tout->Write();
-            fout->Close();
-        }
+        //     bWCXRotation->SetAddress(WCXRotation);
+        //     bWCYRotation->SetAddress(WCYRotation);
+        //     bWCZRotation->SetAddress(WCZRotation);
+        //     bWCDetCentre->SetAddress(WCDetCentre);
+        //     bWCDetRadius->SetAddress(&WCDetRadius);
+        //     bWCDetHeight->SetAddress(&WCDetHeight);
+
+        //     bWCXRotation->GetEntry(0);
+        //     bWCYRotation->GetEntry(0);
+        //     bWCZRotation->GetEntry(0);
+        //     bWCDetCentre->GetEntry(0);
+        //     bWCDetRadius->GetEntry(0);
+        //     bWCDetHeight->GetEntry(0);
+
+        //     TFile *fout = TFile::Open(fOutFileName, "update");
+        //     fout->cd();
+        //     TTree *tout = new TTree("Settings", "");
+        //     tout->Branch("WCXRotation", WCXRotation, "WCXRotation[3]/F");
+        //     tout->Branch("WCYRotation", WCYRotation, "WCYRotation[3]/F");
+        //     tout->Branch("WCZRotation", WCZRotation, "WCZRotation[3]/F");
+        //     tout->Branch("WCDetCentre", WCDetCentre, "WCDetCentre[3]/F");
+        //     tout->Branch("WCDetRadius", &WCDetRadius, "WCDetRadius/F");
+        //     tout->Branch("WCDetHeight", &WCDetHeight, "WCDetHeight/F");
+        //     tout->Fill();
+        //     tout->Write();
+        //     fout->Close();
+        // }
     }
     else
     {
@@ -486,11 +471,10 @@ void WCRootData::CopyTree(const char *filename,
 
 void WCRootData::SetTubes(HitTubeCollection *hc, const int iPMT)
 {
-#ifdef HYBRIDWCSIM
-	const int nTubes = fWCGeom->GetWCNumPMT(bool(iPMT));
+	const int nTubes = !isOD.at(iPMT) ? fWCGeom->GetWCNumPMT(bool(iPMT)) : fWCGeom->GetODWCNumPMT() ;
 	for(int i=0; i<nTubes; i++)
 	{
-		const WCSimRootPMT *tube = fWCGeom->GetPMTPtr(i, bool(iPMT));
+		const WCSimRootPMT *tube = !isOD.at(iPMT) ? fWCGeom->GetPMTPtr(i, bool(iPMT)) : fWCGeom->GetODPMTPtr(i) ;
 
 		const int tubeID = tube->GetTubeNo();
 		hc->AddHitTube(tubeID);
@@ -500,18 +484,4 @@ void WCRootData::SetTubes(HitTubeCollection *hc, const int iPMT)
 			(&(*hc)[tubeID])->SetOrientation(j, tube->GetOrientation(j));
 		}
 	}
-#else
-	const int nTubes = fWCGeom->GetWCNumPMT();
-	for(int i=0; i<nTubes; i++)
-	{
-  		WCSimRootPMT tube = fWCGeom->GetPMT(i);
-		const int tubeID = tube.GetTubeNo();
-		hc->AddHitTube(tubeID);
-		for(int j=0; j<3; j++)
-		{
-			(&(*hc)[tubeID])->SetPosition(j, tube.GetPosition(j));
-			(&(*hc)[tubeID])->SetOrientation(j, tube.GetOrientation(j));
-		}
-	}
-#endif
 }

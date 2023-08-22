@@ -26,6 +26,7 @@ pbuilder_install_headers(${HEADERS})
 #Executables
 #################
 set(exe_sources
+        appIWCDSingleEvent.cc
         appWCTESingleEvent.cc
 )
 

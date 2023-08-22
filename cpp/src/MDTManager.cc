@@ -3,9 +3,10 @@
 MDTManager::MDTManager(int seed)
 {
     fRndm = new MTRandom( seed );
-    fTrigAlgo = new TriggerAlgo();
+    // fTrigAlgo = new TriggerAlgo();
     fDgtzr = new HitDigitizer( fRndm->Integer(1000000) );
 
+    fTrigAlgo.clear();
     fPMTResp.clear();
     fDark.clear();
     fPHC.clear();
@@ -14,7 +15,7 @@ MDTManager::MDTManager(int seed)
 
 MDTManager::~MDTManager()
 {
-    if( fTrigAlgo ){ delete fTrigAlgo; fTrigAlgo = NULL; }
+    // if( fTrigAlgo ){ delete fTrigAlgo; fTrigAlgo = NULL; }
     if( fRndm ){ delete fRndm; fRndm = NULL; }
 
     map<string, PMTResponse*>::iterator iPMTResp;
@@ -38,6 +39,13 @@ MDTManager::~MDTManager()
         delete iPHC->second; iPHC->second = NULL;
     }
     fPHC.clear();
+
+    map<string, TriggerAlgo*>::iterator iTrigAlgo;
+    for(iTrigAlgo=fTrigAlgo.begin(); iTrigAlgo!=fTrigAlgo.end(); iTrigAlgo++)
+    {
+        delete iTrigAlgo->second; iTrigAlgo->second = NULL;
+    }
+    fTrigAlgo.clear();
 
     map<string, TriggerInfo*>::iterator iTrigInfo;
     for(iTrigInfo=fTrigInfo.begin(); iTrigInfo!=fTrigInfo.end(); iTrigInfo++)
@@ -70,7 +78,7 @@ void MDTManager::DoTrigger(const string &pmtname)
 {
     if( this->HasThisPMTType(pmtname) )
     {
-        fTrigAlgo->NDigits(fPHC[pmtname], fTrigInfo[pmtname]);
+        fTrigAlgo[pmtname]->DoTrigger(fPHC[pmtname], fTrigInfo[pmtname]);
     }
 }
 
@@ -108,13 +116,17 @@ void MDTManager::SetHitTubeCollection(HitTubeCollection *hc, const string &pmtna
 
 void MDTManager::RegisterPMTType(const string &pmtname, PMTResponse *pmtResp)
 {
-    fTrigInfo[pmtname] = new TriggerInfo();
-    fPHC[pmtname] = new HitTubeCollection();
-    fDark[pmtname] = new PMTNoise(fRndm->Integer(1000000), pmtname);
+    if( fPHC.count(pmtname)==0 )
+    {
+        fTrigAlgo[pmtname] = new TriggerAlgo(pmtname) ;
+        fTrigInfo[pmtname] = new TriggerInfo();
+        fPHC[pmtname] = new HitTubeCollection();
+        fDark[pmtname] = new PMTNoise(fRndm->Integer(1000000), pmtname);
 
-    if( pmtResp==0 ){ fPMTResp[pmtname] = new GenericPMTResponse(); }
-    else{ fPMTResp[pmtname] = pmtResp; }
-    fPMTResp[pmtname]->Initialize(fRndm->Integer(10000000), pmtname);
+        if( pmtResp==0 ){ fPMTResp[pmtname] = new GenericPMTResponse(); }
+        else{ fPMTResp[pmtname] = pmtResp; }
+        fPMTResp[pmtname]->Initialize(fRndm->Integer(10000000), pmtname);
+    }
 }
 
 bool MDTManager::HasThisPMTType(const string &pmtname)
