@@ -8,3 +8,7 @@ appIWCDSingleEvent
 
 # root file
 *.root
+
+.idea
+build-*
+install-*
