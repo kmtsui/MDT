@@ -83,13 +83,13 @@ void WCRootData::AddTrueHitsToMDT(HitTubeCollection *hc, PMTResponse *pr, float 
             if( truetime<0. ){ continue; }
             if( aHitTime->GetParentID()<0 ){ continue; }
 
-            TrueHit *th = new TrueHit(truetime, aHitTime->GetParentID());
+            TrueHit *th = new TrueHit(truetime+intTime, aHitTime->GetParentID());
 
             for(int k=0; k<3; k++){ th->SetPosition(k, aHitTime->GetPhotonEndPos(k)); }
             for(int k=0; k<3; k++){ th->SetDirection(k, aHitTime->GetPhotonEndDir(k)); }
             for(int k=0; k<3; k++){ th->SetStartDirection(k, aHitTime->GetPhotonStartDir(k)); }
 
-            th->SetStartTime(aHitTime->GetPhotonStartTime());
+            th->SetStartTime(aHitTime->GetPhotonStartTime()+intTime);
             for(int k=0; k<3; k++){ th->SetStartPosition(k, aHitTime->GetPhotonStartPos(k)); }
             if( !pr->ApplyDE(th) ){ continue; }
 
@@ -198,6 +198,56 @@ void WCRootData::AddDigiHits(MDTManager *mdt, int eventID, int iPMT)
 void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID, int iPMT)
 {
     WCSimRootTrigger* anEvent = fSpEvt[iPMT]->GetTrigger(0);
+    // Save raw hits
+    // container for photon info
+    std::vector<double> truetime;
+    std::vector<int>   primaryParentID;
+    std::vector<float> photonStartTime;
+    std::vector<TVector3> photonStartPos;
+    std::vector<TVector3> photonEndPos;
+    std::vector<TVector3> photonStartDir;
+    std::vector<TVector3> photonEndDir;
+    for(hc->Begin(); !hc->IsEnd(); hc->Next())
+    {
+        // Get tube ID
+        HitTube *aPH = &(*hc)();
+        int tubeID = aPH->GetTubeID();
+        int mPMTID = aPH->GetmPMTID();
+        int mPMT_PMTID = aPH->GetmPMT_PMTID();
+
+
+        const int NPE = aPH->GetNRawPE();
+        const vector<TrueHit*> PEs = aPH->GetPhotoElectrons();
+        for(int iPE=0; iPE<NPE; iPE++)
+        {
+            truetime.push_back(PEs[iPE]->GetTime());
+            primaryParentID.push_back(PEs[iPE]->GetParentId());
+            photonStartTime.push_back(PEs[iPE]->GetStartTime());
+            photonStartPos.push_back(TVector3(PEs[iPE]->GetStartPosition(0),PEs[iPE]->GetStartPosition(1),PEs[iPE]->GetStartPosition(2)));
+            photonEndPos.push_back(TVector3(PEs[iPE]->GetPosition(0),PEs[iPE]->GetPosition(1),PEs[iPE]->GetPosition(2)));
+            photonStartDir.push_back(TVector3(PEs[iPE]->GetStartDirection(0),PEs[iPE]->GetStartDirection(1),PEs[iPE]->GetStartDirection(2)));
+            photonEndDir.push_back(TVector3(PEs[iPE]->GetDirection(0),PEs[iPE]->GetDirection(1),PEs[iPE]->GetDirection(2)));
+        }
+
+        anEvent->AddCherenkovHit(tubeID,
+                                mPMTID,
+                                mPMT_PMTID,
+                                truetime,
+                                primaryParentID,
+                                photonStartTime,
+                                photonStartPos,
+                                photonEndPos,
+                                photonStartDir,
+                                photonEndDir);
+
+        truetime.clear();
+        primaryParentID.clear();
+        photonStartTime.clear();
+        photonStartPos.clear();
+        photonEndPos.clear();
+        photonStartDir.clear();
+        photonEndDir.clear();
+    }
     const int nTriggers = ti->GetNumOfTrigger(); 
     for(int iTrig=0; iTrig<nTriggers; iTrig++) 
     {
@@ -237,14 +287,13 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
         {
             HitTube *aPH = &(*hc)();
             int tubeID = aPH->GetTubeID();
+            int mPMTID = aPH->GetmPMTID();
+            int mPMT_PMTID = aPH->GetmPMT_PMTID();
             int nCount = 0;
             for(int i=0; i<aPH->GetNDigiHits(); i++)
             {
                 float t = aPH->GetTimeDigi(i);
 
-                // Need to be updated 
-                int mPMT_module_id = 0;
-                int mPMT_pmt_id = 0;
                 if( t>=tWinLowEdge && t<=tWinUpEdge )
                 {
                     bool doFill = false;
@@ -262,8 +311,8 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
                         anEvent->AddCherenkovDigiHit(q,
                                                      t,
                                                      tubeID,
-                                                     mPMT_module_id,
-                                                     mPMT_pmt_id,
+                                                     mPMTID,
+                                                     mPMT_PMTID,
                                                      true_pe_comp);
                         nHits += 1;
                         sumQ += q;
@@ -477,11 +526,15 @@ void WCRootData::SetTubes(HitTubeCollection *hc, const int iPMT)
 		const WCSimRootPMT *tube = !isOD.at(iPMT) ? fWCGeom->GetPMTPtr(i, bool(iPMT)) : fWCGeom->GetODPMTPtr(i) ;
 
 		const int tubeID = tube->GetTubeNo();
+        const int mPMTID = tube->GetmPMTNo();
+        const int mPMT_PMTID = tube->GetmPMT_PMTNo();
 		hc->AddHitTube(tubeID);
 		for(int j=0; j<3; j++)
 		{
 			(&(*hc)[tubeID])->SetPosition(j, tube->GetPosition(j));
 			(&(*hc)[tubeID])->SetOrientation(j, tube->GetOrientation(j));
 		}
+        (&(*hc)[tubeID])->SetmPMTID(mPMTID);
+        (&(*hc)[tubeID])->SetmPMT_PMTID(mPMT_PMTID);
 	}
 }
