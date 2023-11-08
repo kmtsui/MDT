@@ -28,6 +28,13 @@ void ReadConfiguration(const char*);
 
 int main(int argc, char **argv)
 {
+    if (argc==1)
+    {
+        std::cout<<" ** Please specify input config file ** "<<std::endl;
+        std::cout<<" ** Usage: appGenPileUpSpill config_file ** "<<std::endl;
+        return 0;
+    }
+
     std::string ConfigFileName = argv[1];
     ReadConfiguration(argv[1]);
 
