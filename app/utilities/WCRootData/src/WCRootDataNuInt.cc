@@ -31,7 +31,7 @@ WCRootDataNuInt::~WCRootDataNuInt()
     std::vector<pair<TString, int>>().swap(fFriendList);
 }
 
-void WCRootDataNuInt::LoadFiles(const char *filename)
+void WCRootDataNuInt::LoadFiles(const char *filename, const vector<string> &list)
 {
     ifstream fin(filename);
     string aLine;
@@ -59,9 +59,11 @@ void WCRootDataNuInt::LoadFiles(const char *filename)
 
     fNumFiles = fFileList.size();
     std::cout<<" Found " << fNumFiles <<" files " <<std::endl;
+
+    fWCRootEvtList = list;
     
     fItrFile = fRnd->Integer(fNumFiles);
-    this->ReadFile(fFileList[fItrFile].first);
+    this->ReadFile(fFileList[fItrFile].first,fWCRootEvtList);
     fFileIdNum = fFileList[fItrFile].second;
     fNumEntries = this->GetEntries();
     fItrEntry = fRnd->Integer(fNumEntries);
@@ -86,7 +88,7 @@ bool WCRootDataNuInt::Next()
             fItrFile = fRnd->Integer(fNumFiles);
             std::cout<<" Rewiding file from " << fFileList[fItrFile].first <<std::endl;
         }
-        this->ReadFile(fFileList[fItrFile].first);
+        this->ReadFile(fFileList[fItrFile].first,fWCRootEvtList);
         if( fHasFriend ){ this->ReadFriend(fFriendList[fItrFile].first); };
 
         fFileIdNum = fFileList[fItrFile].second;
