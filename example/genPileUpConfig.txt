@@ -1,0 +1,14 @@
+< ListIDNuIntFiles = example/list_iwcd_wcsim.txt >
+< ListBeamBkgFiles = example/list_iwcd_wcsim.txt >
+< OutFileNamePrefix = iwcd_pupspill.0000  >
+< MDTParFile = parameter/MDTParamenter_IWCD.txt >
+< InitialSeed = 7624715 >
+< IDNuIntRate = 1.21 >
+< BeamBkgRate = 4.41 >
+< UseOD = 0 >
+
+#< NumOfSpillsSavedPerFile = 1000 >
+#< TotalNumOfSpills = 10000 >
+
+< NumOfSpillsSavedPerFile = 100 >
+< TotalNumOfSpills = 100 >
