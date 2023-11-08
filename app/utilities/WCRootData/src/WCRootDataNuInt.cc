@@ -43,7 +43,8 @@ void WCRootDataNuInt::LoadFiles(const char *filename, const vector<string> &list
         stringstream ss(aLine);
         string stmp;
         ss>>stmp;
-        num = this->GetFileIdNumber(stmp.c_str());
+        //num = this->GetFileIdNumber(stmp.c_str());
+        num++;
         fFileList.push_back(pair<TString, int>(stmp, num));
         std::cout<<" Adding " << stmp <<" " << num <<std::endl;
         //while( ss>>stmp )
