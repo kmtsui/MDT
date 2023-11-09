@@ -94,7 +94,10 @@ void WCRootDataPileUpSpill::FillTree()
     fPupSpillT->Fill();
     fPupSpillT->Write("", TObject::kOverwrite);
 
-    fSpEvt[0]->ReInitialize();
+    for(unsigned int i=0; i<fSpEvt.size(); i++)
+    {
+        fSpEvt[i]->ReInitialize();
+    }
     fPupSpill.Clear();
     
     fCurSpill += 1;
