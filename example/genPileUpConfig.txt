@@ -1,7 +1,7 @@
-< ListIDNuIntFiles = example/list_iwcd_wcsim.txt >
-< ListBeamBkgFiles = example/list_iwcd_wcsim.txt >
+< ListIDNuIntFiles = $MDTROOT/example/list_iwcd_wcsim.txt >
+< ListBeamBkgFiles = $MDTROOT/example/list_iwcd_wcsim.txt >
 < OutFileNamePrefix = iwcd_pupspill.0000  >
-< MDTParFile = parameter/MDTParamenter_IWCD.txt >
+< MDTParFile = $MDTROOT/parameter/MDTParamenter_IWCD_PileUp.txt >
 < InitialSeed = 7624715 >
 < IDNuIntRate = 1.21 >
 < BeamBkgRate = 4.41 >
