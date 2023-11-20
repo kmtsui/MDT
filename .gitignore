@@ -4,7 +4,14 @@
 
 # binary
 appWCTESingleEvent
+appIWCDSingleEvent
+appGenPileUpSpill
 
 # output files
 *.root
 *.pdf
+
+
+.idea
+build-*
+install-*
