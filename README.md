@@ -68,8 +68,8 @@ The waveform of the first pulse of each PMT in each event is saved in `TClonesAr
 // open the file and get the digitzed waveform tree
 TTree* wcsimDigiWFTree = (TTree*)f->Get("wcsimDigiWFTree");
 TClonesArray *arr = new TClonesArray("TH1F");
-wcsimDigiWFTree->GetBranch("wcsimDigiWF")->SetAutoDelete(kFALSE);
-wcsimDigiWFTree->SetBranchAddress("wcsimDigiWF",&arr);
+wcsimDigiWFTree->GetBranch("wcsimrootevent_waveform")->SetAutoDelete(kFALSE);
+wcsimDigiWFTree->SetBranchAddress("wcsimrootevent_waveform",&arr);
 // In each event, each array index corresponds to PMT id (from 0 to nPMTs-1)
 wcsimDigiWFTree->GetEntry(0); // event id
 TH1F* h = (TH1F*)arr->At(0); // PMT id

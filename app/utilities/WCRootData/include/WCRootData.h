@@ -70,9 +70,10 @@ class WCRootData
         bool fMultDigiHits;
 
         TTree *fWCSimDigiWFT;
-        TClonesArray* fDigiWF;
-        TClonesArray* fDigiWF2;
-        TClonesArray* fDigiWFOD;
+        std::vector<TClonesArray*> fDigiWF;
+        // TClonesArray* fDigiWF;
+        // TClonesArray* fDigiWF2;
+        // TClonesArray* fDigiWFOD;
         bool fSaveWF;
 
         TTree *fWCSimDigiPulls;

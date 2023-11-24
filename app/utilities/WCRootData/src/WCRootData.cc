@@ -197,20 +197,26 @@ void WCRootData::CreateTree(const char *filename, const vector<string> &list)
             fWCSimT->Branch(list[i].c_str(), bAddress, &fSpEvt[i], bufferSize, 2);
             if ( list[i].find("OD")!=std::string::npos ) isOD[i] = true;
         }
+
+        if (fSaveWF) 
+        {
+            fWCSimDigiWFT = new TTree("wcsimDigiWFTree","Digitized waveform for each PMT");
+            fDigiWF.clear();
+            fDigiWF = vector<TClonesArray*>(list.size(), 0);
+            for(unsigned int i=0; i<list.size(); i++)
+            {
+                fDigiWF[i] = new TClonesArray("TH1F");
+                fWCSimDigiWFT->Branch(Form("%s_waveform",list[i].c_str()),&fDigiWF[i]);
+            }
+
+            fWCSimDigiPulls = new TTree("WCSimDigiPulls","Time and charge pulls of digitized hits");
+            fWCSimDigiPulls->Branch("PullQ",&fPullQ);
+            fWCSimDigiPulls->Branch("PullT",&fPullT);
+            fWCSimDigiPulls->Branch("TrueQ",&fTrueQ);
+            fWCSimDigiPulls->Branch("TrueT",&fTrueT);
+        }
     }
 
-    fWCSimDigiWFT = new TTree("wcsimDigiWFTree","Digitized waveform for each PMT");
-    fDigiWF = new TClonesArray("TH1F");
-    fWCSimDigiWFT->Branch("wcsimDigiWF",&fDigiWF);
-#ifdef HYBRIDWCSIM
-    fDigiWF2 = new TClonesArray("TH1F");
-    fWCSimDigiWFT->Branch("wcsimDigiWF2",&fDigiWF2);
-#endif
-    fWCSimDigiPulls = new TTree("WCSimDigiPulls","Time and charge pulls of digitized hits");
-    fWCSimDigiPulls->Branch("PullQ",&fPullQ);
-    fWCSimDigiPulls->Branch("PullT",&fPullT);
-    fWCSimDigiPulls->Branch("TrueQ",&fTrueQ);
-    fWCSimDigiPulls->Branch("TrueT",&fTrueT);
 }
 
 void WCRootData::AddDigiHits(MDTManager *mdt, int eventID, int iPMT)
@@ -354,31 +360,38 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
         eh->SetDate( int(triggerTime) );
     }
     
-#ifdef HYBRIDWCSIM
-    TClonesArray &fDigiWFarray;
-    if (!bool(iPMT)) fDigiWFarray = *fDigiWF;
-    else fDigiWFarray = *fDigiWF2;
-#else
-    TClonesArray &fDigiWFarray = *fDigiWF;
-#endif
-
-    for(hc->Begin(); !hc->IsEnd(); hc->Next())
+    if (fSaveWF)
     {
-        HitTube *aPH = &(*hc)();
-        if (fSaveWF)
+        TClonesArray &fDigiWFarray = *(fDigiWF[iPMT]);
+        for(hc->Begin(); !hc->IsEnd(); hc->Next())
         {
-            if (aPH->GetDigiWF())
-                new(fDigiWFarray[aPH->GetTubeID()-1]) TH1F(*(aPH->GetDigiWF()));
-            else new(fDigiWFarray[aPH->GetTubeID()-1]) TH1F();
-        }
-        fPullQ = aPH->GetPullQ();
-        fPullT = aPH->GetPullT();
-        fTrueQ = aPH->GetTrueQ();
-        fTrueT = aPH->GetTrueT();
-        fWCSimDigiPulls->Fill();
+            HitTube *aPH = &(*hc)();
 
-        aPH = NULL;
-    } // PMT loop
+            // if (aPH->GetDigiWF())
+            //     new(fDigiWFarray[aPH->GetTubeID()-1]) TH1F(*(aPH->GetDigiWF()));
+            // else new(fDigiWFarray[aPH->GetTubeID()-1]) TH1F();
+            TH1F* h = (TH1F*)fDigiWFarray.ConstructedAt(aPH->GetTubeID()-1);
+            if (aPH->GetDigiWF()) 
+            {
+                int nbins = aPH->GetDigiWF()->GetNbinsX();
+                h->SetBins(nbins,aPH->GetDigiWF()->GetBinLowEdge(1),aPH->GetDigiWF()->GetBinLowEdge(nbins+1));
+                for (int i=1;i<=nbins;i++) h->SetBinContent(i,aPH->GetDigiWF()->GetBinContent(i));
+            }
+            else
+            {
+                h->Reset();
+            }
+            
+
+            fPullQ = aPH->GetPullQ();
+            fPullT = aPH->GetPullT();
+            fTrueQ = aPH->GetTrueQ();
+            fTrueT = aPH->GetTrueT();
+            fWCSimDigiPulls->Fill();
+
+            aPH = NULL;
+        } // PMT loop
+    }
 }
 
 void WCRootData::FillTree()
@@ -391,11 +404,14 @@ void WCRootData::FillTree()
     {
         fSpEvt[i]->ReInitialize();
     }
-    if (fSaveWF) fWCSimDigiWFT->Fill();
-    fDigiWF->Clear();
-#ifdef HYBRIDWCSIM
-    fDigiWF2->Clear();
-#endif
+    if (fSaveWF) 
+    {
+        fWCSimDigiWFT->Fill();
+        for(unsigned int i=0; i<fDigiWF.size(); i++)
+        {
+            fDigiWF[i]->Clear();
+        }
+    }
 }
 
 
@@ -465,8 +481,11 @@ void WCRootData::WriteTree()
     TFile *f = fWCSimT->GetCurrentFile();
     f->cd();
     fWCSimT->Write();
-    if (fSaveWF) fWCSimDigiWFT->Write();
-    fWCSimDigiPulls->Write();
+    if (fSaveWF) 
+    {
+        fWCSimDigiWFT->Write();
+        fWCSimDigiPulls->Write();
+    }
     f->Close();
 }
 

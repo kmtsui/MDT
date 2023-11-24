@@ -1,14 +1,15 @@
 # Parameter setting 
 
 # Trigger setting
-< NDigitsThreshold = 25 >
-< NDigitsStepSize = 5 >
-< NDigitsPostTriggerWindow = +950. >
-< NDigitsPreTriggerWindow = -400. >
-< FailurePostTriggerWindow = +950. > # seems to be +950 by default //+100000.
-< FailurePreTriggerWindow = -400. >
-< FailureTime = 100. >
-< NDigitsWindow = 200. >
+< NDigitsThreshold_PMT3inchR12199_02 = 25 >
+< NDigitsStepSize_PMT3inchR12199_02 = 5 >
+< NDigitsPostTriggerWindow_PMT3inchR12199_02 = +950. >
+< NDigitsPreTriggerWindow_PMT3inchR12199_02 = -400. >
+< FailurePostTriggerWindow_PMT3inchR12199_02 = +950. > # seems to be +950 by default //+100000.
+< FailurePreTriggerWindow_PMT3inchR12199_02 = -400. >
+< FailureTime_PMT3inchR12199_02 = 100. >
+< NDigitsWindow_PMT3inchR12199_02 = 200. >
+< TriggerType_PMT3inchR12199_02 = NDigits >
 
 # Dark noise setting
 < NumOfTubes = 2014 >
@@ -58,4 +59,4 @@
 < WaveformOffset = 95 > # ns
 < SigmaGuess = 6 > # ns, initial guess of pulse width
 < ADCToPE = 108 > # empirical conversion from adc to pe
-< SaveWaveform = 0 > # Save the digitized waveform in output, will significantly increase time storage usage
+< SaveWaveform = 1 > # Save the digitized waveform in output
