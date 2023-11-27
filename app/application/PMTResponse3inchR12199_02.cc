@@ -30,6 +30,7 @@ void PMTResponse3inchR12199_02::Initialize(int seed, const string &pmtname)
     s["TimingResMinimum"] = "TimingResMinimum"; 
     s["ScalFactorTTS"] = "ScalFactorTTS";
     s["SPECDFFile"] = "SPECDFFile";
+    s["PMTDE"] = "PMTDE";
     if( fPMTType!="" )
     {
         map<string, string>::iterator i;
@@ -43,7 +44,60 @@ void PMTResponse3inchR12199_02::Initialize(int seed, const string &pmtname)
     Conf->GetValue<float>(s["TimingResMinimum"], fTResMinimum);
     Conf->GetValue<float>(s["ScalFactorTTS"], fSclFacTTS);
     Conf->GetValue<string>(s["SPECDFFile"], fTxtFileSPECDF);
+    Conf->GetValue<string>(s["PMTDE"], fPMTDEFile);
     this->LoadCDFOfSPE(fTxtFileSPECDF);
+    this->LoadPMTDE(fPMTDEFile);
+}
+
+void PMTResponse3inchR12199_02::LoadPMTDE(const string &filename)
+{
+    fLoadDE = false;
+    fDE.clear();
+    ifstream ifs(filename.c_str());
+    if (!ifs)
+    {
+        cout<<" PMTResponse3inchR12199_02::LoadPMTDE" <<endl;
+        cout<<"  - No PMT QE file: " << filename <<endl;
+        cout<<"  - Do not apply DE " << endl;
+    }
+    string aLine;
+    while( std::getline(ifs, aLine) )
+    {
+        if( aLine[0] == '#' ){ continue; }
+        stringstream ssline(aLine);
+        string item;
+        while (getline(ssline, item, ssline.widen(' ')))
+        {
+            fDE.push_back( atof(item.c_str()) );
+        }
+    }
+    ifs.close();
+
+    if (fDE.size()>0)
+    {
+        fLoadDE = true;
+        cout<<" PMTResponse3inchR12199_02::LoadPMTDE" <<endl;
+        cout<<"  - Load PMT QE file: " << filename <<endl;
+        cout<<"  - # Entries = " << fDE.size() << endl;
+    }
+}
+
+bool PMTResponse3inchR12199_02::ApplyDE(const TrueHit* th, const HitTube *ht)
+{
+    if (fLoadDE && ht)
+    {
+        long unsigned int tubeID = ht->GetTubeID();
+        if (tubeID>=fDE.size())
+        {
+            cout<<" PMTResponse3inchR12199_02::ApplyDE" <<endl;
+            cout<<"  - tubeID = " << tubeID << " >= fDE.size() = " << fDE.size() << endl;
+            cout<<"  -> EXIT" <<endl;
+            exit(-1);
+        }
+        return fRand->Rndm() < fDE[tubeID];
+    }
+
+    return true;
 }
 
 float PMTResponse3inchR12199_02::HitTimeSmearing(float Q)

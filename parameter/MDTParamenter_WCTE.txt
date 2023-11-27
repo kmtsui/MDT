@@ -10,6 +10,7 @@
 < FailureTime_PMT3inchR12199_02 = 100. >
 < NDigitsWindow_PMT3inchR12199_02 = 200. >
 < TriggerType_PMT3inchR12199_02 = NDigits >
+#< TriggerType_PMT3inchR12199_02 = NoTrig >
 
 # Dark noise setting
 < NumOfTubes = 2014 >
@@ -32,6 +33,7 @@
 < TimingResConstant_PMT3inchR12199_02 = 1.890 > # TTS(FWHM) = 1ns at 1 charge
 < TimingResMinimum_PMT3inchR12199_02 = 0.58 >
 < ScalFactorTTS_PMT3inchR12199_02 = 1 >
+< PMTDE_PMT3inchR12199_02 = $MDTROOT/parameter/DE_WCTE.txt > # txt file of PMT by PMT (quantum) detection efficiency
 
 # Digitizer setting
 < DigiHitIntegrationWindow = 200 >  // ns

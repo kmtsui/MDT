@@ -103,7 +103,7 @@ void WCRootData::AddTrueHitsToMDT(HitTubeCollection *hc, PMTResponse *pr, float 
 
             th->SetStartTime(aHitTime->GetPhotonStartTime()+intTime);
             for(int k=0; k<3; k++){ th->SetStartPosition(k, aHitTime->GetPhotonStartPos(k)); }
-            if( !pr->ApplyDE(th) ){ continue; }
+            if( !pr->ApplyDE(th,&(*hc)[tubeID]) ){ continue; }
 
             (&(*hc)[tubeID])->AddRawPE(th);
         }
