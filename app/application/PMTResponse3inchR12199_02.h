@@ -15,11 +15,11 @@ class PMTResponse3inchR12199_02 : public GenericPMTResponse
 
     private:
         string fPMTDEFile;
-        bool fLoadDE;
+        int fLoadDE;
         std::vector<double> fDE;
         void LoadPMTDE(const string &s);
         string fPMTTFile;
-        bool fLoadT;
+        int fLoadT;
         std::vector<double> fT;
         void LoadPMTTime(const string &s);
 };

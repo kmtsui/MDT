@@ -54,7 +54,7 @@ void PMTResponse3inchR12199_02::Initialize(int seed, const string &pmtname)
 
 void PMTResponse3inchR12199_02::LoadPMTDE(const string &filename)
 {
-    fLoadDE = false;
+    fLoadDE = 0;
     fDE.clear();
     ifstream ifs(filename.c_str());
     if (!ifs)
@@ -76,18 +76,19 @@ void PMTResponse3inchR12199_02::LoadPMTDE(const string &filename)
     }
     ifs.close();
 
-    if (fDE.size()>0)
+    fLoadDE = fDE.size();
+
+    if (fLoadDE>0)
     {
-        fLoadDE = true;
         cout<<" PMTResponse3inchR12199_02::LoadPMTDE" <<endl;
         cout<<"  - Load PMT QE file: " << filename <<endl;
-        cout<<"  - # Entries = " << fDE.size() << endl;
+        cout<<"  - # Entries = " << fLoadDE << endl;
     }
 }
 
 void PMTResponse3inchR12199_02::LoadPMTTime(const string &filename)
 {
-    fLoadT = false;
+    fLoadT = 0;
     fT.clear();
     ifstream ifs(filename.c_str());
     if (!ifs)
@@ -109,24 +110,24 @@ void PMTResponse3inchR12199_02::LoadPMTTime(const string &filename)
     }
     ifs.close();
 
-    if (fT.size()>0)
+    fLoadT = fT.size();
+    if (fLoadT>0)
     {
-        fLoadDE = true;
         cout<<" PMTResponse3inchR12199_02::LoadPMTTime" <<endl;
         cout<<"  - Load PMT Time file: " << filename <<endl;
-        cout<<"  - # Entries = " << fT.size() << endl;
+        cout<<"  - # Entries = " << fLoadT << endl;
     }
 }
 
 bool PMTResponse3inchR12199_02::ApplyDE(const TrueHit* th, const HitTube *ht)
 {
-    if (fLoadDE && ht)
+    if (fLoadDE>0 && ht)
     {
-        long unsigned int tubeID = ht->GetTubeID();
-        if (tubeID>=fDE.size())
+        int tubeID = ht->GetTubeID();
+        if (tubeID>=fLoadDE)
         {
             cout<<" PMTResponse3inchR12199_02::ApplyDE" <<endl;
-            cout<<"  - tubeID = " << tubeID << " >= fDE.size() = " << fDE.size() << endl;
+            cout<<"  - tubeID = " << tubeID << " >= fLoadDE = " << fLoadDE << endl;
             cout<<"  -> EXIT" <<endl;
             exit(-1);
         }
@@ -146,12 +147,12 @@ float PMTResponse3inchR12199_02::HitTimeSmearing(float Q)
 
 float PMTResponse3inchR12199_02::HitTimeSmearing(float Q, int tubeID)
 {
-    if (fLoadT)
+    if (fLoadT>0)
     {
-        if (tubeID>=fT.size())
+        if (tubeID>=fLoadT)
         {
             cout<<" PMTResponse3inchR12199_02::HitTimeSmearing" <<endl;
-            cout<<"  - tubeID = " << tubeID << " >= fT.size() = " << fT.size() << endl;
+            cout<<"  - tubeID = " << tubeID << " >= fLoadT = " << fLoadT << endl;
             cout<<"  -> EXIT" <<endl;
             exit(-1);
         }
