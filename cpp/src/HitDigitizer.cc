@@ -242,6 +242,7 @@ void HitDigitizer_mPMT::DigitizeTube(HitTube *aHT, PMTResponse *pr)
 
             TH1F hWT = BuildWavetrain(digiPEs, fIntegWindow);
             this->FitWavetrain(hWT,digiT,digiQ);
+            digiT += pr->HitTimeSmearing(digiQ,aHT->GetTubeID());
 
             isAlive = true;
             if (fApplyEff ){ this->ApplyThreshold(digiQ, isAlive); }
@@ -269,6 +270,7 @@ void HitDigitizer_mPMT::DigitizeTube(HitTube *aHT, PMTResponse *pr)
 
     TH1F hWT = BuildWavetrain(digiPEs, fIntegWindow);
     this->FitWavetrain(hWT,digiT,digiQ);
+    digiT += pr->HitTimeSmearing(digiQ,aHT->GetTubeID());
     isAlive = true;
     if (fApplyEff ){ this->ApplyThreshold(digiQ, isAlive); }
     if( isAlive )
