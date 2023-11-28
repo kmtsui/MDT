@@ -54,16 +54,16 @@ int main(int argc, char **argv)
     int NPMTType = !fUseOD ? 1 : 2 ;
     vector<string> fPMTType(NPMTType);
     fPMTType[0] = "PMT3inchR12199_02";
-    if (fUseOD>0) fPMTType[1] = "PMT3inchR12199_02_OD";
+    if (fUseOD>0) fPMTType[1] = "PMT3inchR14374";
 
     // Will be manaing marging true hits and digitizing merged true hits
     MDTManager *MDT = new MDTManager(seed_mdt);
     MDT->RegisterPMTType(fPMTType[0], new PMTResponse3inchR12199_02());
-    if (fUseOD) MDT->RegisterPMTType(fPMTType[1], new PMTResponse3inchR12199_02());
+    if (fUseOD>0) MDT->RegisterPMTType(fPMTType[1], new PMTResponse3inchR14374());
 
     vector<string> listWCRootEvt(NPMTType);
     listWCRootEvt[0] = "wcsimrootevent";
-    if (fUseOD) listWCRootEvt[1] = "wcsimrootevent_OD";
+    if (fUseOD>0) listWCRootEvt[1] = "wcsimrootevent_OD";
 
     // Manage input files for ID interactions 
     WCRootDataIDNuInt *daIDNuInt = new WCRootDataIDNuInt();

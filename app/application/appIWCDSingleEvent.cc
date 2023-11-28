@@ -44,11 +44,11 @@ int main(int argc, char **argv)
     int NPMTType = !fUseOD ? 1 : 2 ;
     vector<string> fPMTType(NPMTType);
     fPMTType[0] = "PMT3inchR12199_02";
-    if (fUseOD) fPMTType[1] = "PMT3inchR12199_02_OD";
+    if (fUseOD) fPMTType[1] = "PMT3inchR14374";
 
     MDTManager *MDT = new MDTManager(fSeed);
     MDT->RegisterPMTType(fPMTType[0], new PMTResponse3inchR12199_02());
-    if (fUseOD) MDT->RegisterPMTType(fPMTType[1], new PMTResponse3inchR12199_02());
+    if (fUseOD) MDT->RegisterPMTType(fPMTType[1], new PMTResponse3inchR14374());
 
     vector<string> listWCRootEvt(NPMTType);
     listWCRootEvt[0] = "wcsimrootevent";

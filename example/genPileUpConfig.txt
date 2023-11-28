@@ -5,7 +5,7 @@
 < InitialSeed = 7624715 >
 < IDNuIntRate = 1.21 >
 < BeamBkgRate = 4.41 >
-< UseOD = 0 >
+< UseOD = 1 >
 
 #< NumOfSpillsSavedPerFile = 1000 >
 #< TotalNumOfSpills = 10000 >
