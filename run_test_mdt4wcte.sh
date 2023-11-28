@@ -5,7 +5,7 @@ EXE=$MDTROOT/app/application/appWCTESingleEvent
 
 WCSIM_FILE=/disk01/usr5/kmtsui/hyperk_repo/WCSim/build/install/wcsim.root
 CONFIG_FILE=$MDTROOT/parameter/MDTParamenter_WCTE.txt
-OUT_FILE=out_appWCTESingleEvent2.root
+OUT_FILE=out_appWCTESingleEvent.root
 SEED=65457869
 
 $EXE -i $WCSIM_FILE\

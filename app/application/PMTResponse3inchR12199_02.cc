@@ -156,8 +156,8 @@ float PMTResponse3inchR12199_02::HitTimeSmearing(float Q, int tubeID)
             cout<<"  -> EXIT" <<endl;
             exit(-1);
         }
-        return this->HitTimeSmearing(Q) + fT[tubeID];
+        return fT[tubeID];
     }
 
-    return this->HitTimeSmearing(Q);
+    return 0;
 }
