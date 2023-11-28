@@ -31,6 +31,7 @@ void PMTResponse3inchR12199_02::Initialize(int seed, const string &pmtname)
     s["ScalFactorTTS"] = "ScalFactorTTS";
     s["SPECDFFile"] = "SPECDFFile";
     s["PMTDE"] = "PMTDE";
+    s["PMTTime"] = "PMTTime";
     if( fPMTType!="" )
     {
         map<string, string>::iterator i;
@@ -45,8 +46,10 @@ void PMTResponse3inchR12199_02::Initialize(int seed, const string &pmtname)
     Conf->GetValue<float>(s["ScalFactorTTS"], fSclFacTTS);
     Conf->GetValue<string>(s["SPECDFFile"], fTxtFileSPECDF);
     Conf->GetValue<string>(s["PMTDE"], fPMTDEFile);
+    Conf->GetValue<string>(s["PMTTime"], fPMTTFile);
     this->LoadCDFOfSPE(fTxtFileSPECDF);
     this->LoadPMTDE(fPMTDEFile);
+    this->LoadPMTTime(fPMTTFile);
 }
 
 void PMTResponse3inchR12199_02::LoadPMTDE(const string &filename)
@@ -82,6 +85,39 @@ void PMTResponse3inchR12199_02::LoadPMTDE(const string &filename)
     }
 }
 
+void PMTResponse3inchR12199_02::LoadPMTTime(const string &filename)
+{
+    fLoadT = false;
+    fT.clear();
+    ifstream ifs(filename.c_str());
+    if (!ifs)
+    {
+        cout<<" PMTResponse3inchR12199_02::LoadPMTTime" <<endl;
+        cout<<"  - No PMT Time file: " << filename <<endl;
+        cout<<"  - Do not apply individual PMT timing " << endl;
+    }
+    string aLine;
+    while( std::getline(ifs, aLine) )
+    {
+        if( aLine[0] == '#' ){ continue; }
+        stringstream ssline(aLine);
+        string item;
+        while (getline(ssline, item, ssline.widen(' ')))
+        {
+            fT.push_back( atof(item.c_str()) );
+        }
+    }
+    ifs.close();
+
+    if (fT.size()>0)
+    {
+        fLoadDE = true;
+        cout<<" PMTResponse3inchR12199_02::LoadPMTTime" <<endl;
+        cout<<"  - Load PMT Time file: " << filename <<endl;
+        cout<<"  - # Entries = " << fT.size() << endl;
+    }
+}
+
 bool PMTResponse3inchR12199_02::ApplyDE(const TrueHit* th, const HitTube *ht)
 {
     if (fLoadDE && ht)
@@ -106,4 +142,21 @@ float PMTResponse3inchR12199_02::HitTimeSmearing(float Q)
     float timingResolution = 0.5*fSclFacTTS*(0.33 + sqrt(fTResConstant/Q));
     if( timingResolution<fTResMinimum ){ timingResolution = fTResMinimum; }
     return fRand->Gaus(0.0,timingResolution);
+}
+
+float PMTResponse3inchR12199_02::HitTimeSmearing(float Q, int tubeID)
+{
+    if (fLoadT)
+    {
+        if (tubeID>=fT.size())
+        {
+            cout<<" PMTResponse3inchR12199_02::HitTimeSmearing" <<endl;
+            cout<<"  - tubeID = " << tubeID << " >= fT.size() = " << fT.size() << endl;
+            cout<<"  -> EXIT" <<endl;
+            exit(-1);
+        }
+        return this->HitTimeSmearing(Q) + fT[tubeID];
+    }
+
+    return this->HitTimeSmearing(Q);
 }
