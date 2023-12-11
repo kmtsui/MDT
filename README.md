@@ -59,7 +59,7 @@ Input variables are:
 - `NumOfSpillsSavedPerFile`, `TotalNumOfSpills`: output spill setup
 
 ## How to simulate and access digitized pulses
-For each true hit, a digitized waveform is simulated by sampling the single PE pulse (defined by the `<WaveformFile>` parameter) every 8 ns with 1 mV resolution. If there is another PE arriving within the same pulse window, the waveforms are added and pulse window is extended. 
+For each true hit, a digitized waveform is simulated by sampling the single PE pulse (defined by the `<WaveformFile>` parameter) every 8 ns with 1 mV resolution. If there is another PE arriving within the same pulse window, the waveforms are added. 
 
 To do pulse fitting, the peak of each pulse is found, then a Gaussian fit is done and the fitted parameters are used to calculate the digitized time and charge.
 
