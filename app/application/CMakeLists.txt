@@ -28,6 +28,7 @@ pbuilder_install_headers(${HEADERS})
 set(exe_sources
         appIWCDSingleEvent.cc
         appWCTESingleEvent.cc
+        appGenPileUpSpill.cc
 )
 
 pbuilder_executables(

@@ -5,6 +5,7 @@
 # binary
 appWCTESingleEvent
 appIWCDSingleEvent
+appGenPileUpSpill
 
 # root file
 *.root
