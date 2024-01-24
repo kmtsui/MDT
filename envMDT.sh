@@ -54,7 +54,7 @@ if ! [ -x "$(command -v root-config)" ]; then
     echo 'root-config could not be found, consider setup ROOT first'
     return 
 else
-	ROOTDIR=$(root-config --prefix)
+	export ROOTDIR=$(root-config --prefix)
 	echo "Using ROOT installed in $ROOTDIR"
 fi
 
@@ -67,7 +67,7 @@ else
 	#export LD_LIBRARY_PATH=${WCSIMDIR}:$LD_LIBRARY_PATH
 
 	if [[ -z "${WCSIMROOTDIR}" ]]; then
-		WCSIMROOTDIR=$WCSIMDIR
+		export WCSIMROOTDIR=$WCSIMDIR
 	fi
 	echo "Using libWCSimRoot.so installed in $WCSIMROOTDIR"
 	export LD_LIBRARY_PATH=${WCSIMROOTDIR}:$LD_LIBRARY_PATH

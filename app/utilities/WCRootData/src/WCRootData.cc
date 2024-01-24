@@ -86,8 +86,8 @@ void WCRootData::AddTrueHitsToMDT(HitTubeCollection *hc, PMTResponse *pr, float 
             TrueHit *th = new TrueHit(truetime+intTime, aHitTime->GetParentID());
 
             for(int k=0; k<3; k++){ th->SetPosition(k, aHitTime->GetPhotonEndPos(k)); }
-            for(int k=0; k<3; k++){ th->SetDirection(k, aHitTime->GetPhotonEndDir(k)); }
-            for(int k=0; k<3; k++){ th->SetStartDirection(k, aHitTime->GetPhotonStartDir(k)); }
+            // for(int k=0; k<3; k++){ th->SetDirection(k, aHitTime->GetPhotonEndDir(k)); }
+            // for(int k=0; k<3; k++){ th->SetStartDirection(k, aHitTime->GetPhotonStartDir(k)); }
 
             th->SetStartTime(aHitTime->GetPhotonStartTime()+intTime);
             for(int k=0; k<3; k++){ th->SetStartPosition(k, aHitTime->GetPhotonStartPos(k)); }
@@ -200,7 +200,7 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
     WCSimRootTrigger* anEvent = fSpEvt[iPMT]->GetTrigger(0);
     // Save raw hits
     // container for photon info
-    std::vector<double> truetime;
+    std::vector<float> truetime;
     std::vector<int>   primaryParentID;
     std::vector<float> photonStartTime;
     std::vector<TVector3> photonStartPos;
@@ -236,9 +236,9 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
                                 primaryParentID,
                                 photonStartTime,
                                 photonStartPos,
-                                photonEndPos,
+                                photonEndPos/*,
                                 photonStartDir,
-                                photonEndDir);
+                                photonEndDir*/);
 
         truetime.clear();
         primaryParentID.clear();
@@ -259,7 +259,7 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
         }
         else if ( ti->GetType(iTrig)==(int)TriggerType::eNoTrig )
         {
-            trigType = kTriggerNoTrig; 
+            trigType = kTriggerFailure;//kTriggerNoTrig; 
             hitTimeOffset = 0;
         }
 
@@ -271,7 +271,7 @@ void WCRootData::AddDigiHits(HitTubeCollection *hc, TriggerInfo *ti, int eventID
             anEvent->SetMode(0);
         }
 
-        vector<Double_t> info(1, ti->GetNHits(iTrig));
+        vector<Float_t> info(1, ti->GetNHits(iTrig));
         info.push_back(hitTimeOffset);
         info.push_back(ti->GetTriggerTime(iTrig));
         anEvent->SetTriggerInfo(trigType, info);
@@ -357,17 +357,17 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
         Int_t     stopvol = aTrack->GetStopvol();
         Int_t     parenttype = aTrack->GetParenttype();
         Int_t     id = aTrack->GetId();
-        Int_t     idPrnt = aTrack->GetParentId();
+        //Int_t     idPrnt = aTrack->GetParentId();
 
 
-        Double_t   dir[3];
-        Double_t   pdir[3];
-        Double_t   stop[3];
-        Double_t   start[3];
-        Double_t   m = aTrack->GetM();
-        Double_t   p = aTrack->GetP();
-        Double_t   E = aTrack->GetE();
-        Double_t   time = aTrack->GetTime() + offset_time;
+        Float_t   dir[3];
+        Float_t   pdir[3];
+        Float_t   stop[3];
+        Float_t   start[3];
+        Float_t   m = aTrack->GetM();
+        Float_t   p = aTrack->GetP();
+        Float_t   E = aTrack->GetE();
+        Float_t   time = aTrack->GetTime() + offset_time;
         for(int j=0; j<3; j++)
         {
             dir[j] = aTrack->GetDir(j); 
@@ -376,10 +376,10 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
             start[j] = aTrack->GetStart(j);
         }
 
-        std::vector<std::vector<float>> bPs = aTrack->GetBoundaryPoints();
-        std::vector<float> bKEs = aTrack->GetBoundaryKEs();
-        std::vector<double> bTimes = aTrack->GetBoundaryTimes();
-        std::vector<int> bTypes = aTrack->GetBoundaryTypes();
+        // std::vector<std::vector<float>> bPs = aTrack->GetBoundaryPoints();
+        // std::vector<float> bKEs = aTrack->GetBoundaryKEs();
+        // std::vector<double> bTimes = aTrack->GetBoundaryTimes();
+        // std::vector<int> bTypes = aTrack->GetBoundaryTypes();
 
         aEvtOut->AddTrack(ipnu, 
 			  flag, 
@@ -394,12 +394,12 @@ void WCRootData::AddTracks(const WCSimRootTrigger *aEvtIn, float offset_time, in
 			  start,
 			  parenttype,
 			  time,
-			  id,
+			  id/*,
 			  idPrnt,
               bPs,
               bKEs,
               bTimes,
-              bTypes);
+              bTypes*/);
 
     }
 }
@@ -520,19 +520,21 @@ void WCRootData::CopyTree(const char *filename,
 
 void WCRootData::SetTubes(HitTubeCollection *hc, const int iPMT)
 {
-	const int nTubes = !isOD.at(iPMT) ? fWCGeom->GetWCNumPMT(bool(iPMT)) : fWCGeom->GetODWCNumPMT() ;
+	//const int nTubes = !isOD.at(iPMT) ? fWCGeom->GetWCNumPMT(bool(iPMT)) : fWCGeom->GetODWCNumPMT() ;
+    const int nTubes = fWCGeom->GetWCNumPMT();
 	for(int i=0; i<nTubes; i++)
 	{
-		const WCSimRootPMT *tube = !isOD.at(iPMT) ? fWCGeom->GetPMTPtr(i, bool(iPMT)) : fWCGeom->GetODPMTPtr(i) ;
+		// const WCSimRootPMT *tube = !isOD.at(iPMT) ? fWCGeom->GetPMTPtr(i, bool(iPMT)) : fWCGeom->GetODPMTPtr(i) ;
+        WCSimRootPMT tube = fWCGeom->GetPMT(i);
 
-		const int tubeID = tube->GetTubeNo();
-        const int mPMTID = tube->GetmPMTNo();
-        const int mPMT_PMTID = tube->GetmPMT_PMTNo();
+		const int tubeID = tube.GetTubeNo();
+        const int mPMTID = tube.GetmPMTNo();
+        const int mPMT_PMTID = tube.GetmPMT_PMTNo();
 		hc->AddHitTube(tubeID);
 		for(int j=0; j<3; j++)
 		{
-			(&(*hc)[tubeID])->SetPosition(j, tube->GetPosition(j));
-			(&(*hc)[tubeID])->SetOrientation(j, tube->GetOrientation(j));
+			(&(*hc)[tubeID])->SetPosition(j, tube.GetPosition(j));
+			(&(*hc)[tubeID])->SetOrientation(j, tube.GetOrientation(j));
 		}
         (&(*hc)[tubeID])->SetmPMTID(mPMTID);
         (&(*hc)[tubeID])->SetmPMT_PMTID(mPMT_PMTID);
