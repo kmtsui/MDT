@@ -63,11 +63,11 @@ void WCRootDataNuInt::LoadFiles(const char *filename, const vector<string> &list
 
     fWCRootEvtList = list;
     
-    fItrFile = fRnd->Integer(fNumFiles);
+    fItrFile = 0;//fRnd->Integer(fNumFiles);
     this->ReadFile(fFileList[fItrFile].first,fWCRootEvtList);
     fFileIdNum = fFileList[fItrFile].second;
     fNumEntries = this->GetEntries();
-    fItrEntry = fRnd->Integer(fNumEntries);
+    fItrEntry = 0;//fRnd->Integer(fNumEntries);
 
     std::cout<<" Starting from: " << fFileList[fItrFile].first
              <<" " << fFileList[fItrFile].second
@@ -86,7 +86,7 @@ bool WCRootDataNuInt::Next()
         fItrFile += 1;
         if( fItrFile==fNumFiles  )
         {
-            fItrFile = fRnd->Integer(fNumFiles);
+            fItrFile = 0;//fRnd->Integer(fNumFiles);
             std::cout<<" Rewiding file from " << fFileList[fItrFile].first <<std::endl;
         }
         this->ReadFile(fFileList[fItrFile].first,fWCRootEvtList);
@@ -94,7 +94,7 @@ bool WCRootDataNuInt::Next()
 
         fFileIdNum = fFileList[fItrFile].second;
         fNumEntries = this->GetEntries();
-        fItrEntry = fRnd->Integer(fNumEntries);
+        fItrEntry = 0;//fRnd->Integer(fNumEntries);
 
         std::cout<<" Reading " << fFileList[fItrFile].first 
                  <<" " << fFileList[fItrFile].second
