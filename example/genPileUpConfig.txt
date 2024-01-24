@@ -3,8 +3,8 @@
 < OutFileNamePrefix = iwcd_pupspill.0000  >
 < MDTParFile = $MDTROOT/parameter/MDTParamenter_IWCD_PileUp.txt >
 < InitialSeed = 7624715 >
-< IDNuIntRate = 1.21 >
-< BeamBkgRate = 4.41 >
+< IDNuIntRate = 10 > // this is now exact number of interaction per event 
+< BeamBkgRate = 0 > // this is now exact number of interaction per event 
 < UseOD = 0 >
 
 #< NumOfSpillsSavedPerFile = 1000 >

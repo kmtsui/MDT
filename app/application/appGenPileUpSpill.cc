@@ -113,8 +113,8 @@ int main(int argc, char **argv)
     for(int i=0; i<fTotalNumofSpills ; i++)
     {
         // Number of ID/Beam bkg interactions of this spill
-        int nThisIDNuInt = daIDNuInt->DrawNumOfInteraction();
-        int nThisBeamBkg = daBeamBkg->DrawNumOfInteraction();
+        int nThisIDNuInt = fIDNuIntRate; // directly take this number for each event //daIDNuInt->DrawNumOfInteraction();
+        int nThisBeamBkg = fBeamBkgRate; // directly take this number for each event //daBeamBkg->DrawNumOfInteraction();
         if( i%PCTLVerbose==0 )
         {
             cout<<" i:" << i
@@ -128,7 +128,8 @@ int main(int argc, char **argv)
         {
             daIDNuInt->Next();
             // Drawing interaction time and bunch at which this interaction is taking place 
-            bt->DrawInteractionTime(nuIntTime, nuIntBunch);
+            //bt->DrawInteractionTime(nuIntTime, nuIntBunch);
+            nuIntTime = 0; nuIntBunch = 0; // just set them to 0 for convenience
             
             // Add true hits of this interaction to MDT
             for(int k=0; k<NPMTType; k++)
@@ -143,7 +144,8 @@ int main(int argc, char **argv)
         {
             daBeamBkg->Next();
 
-            bt->DrawInteractionTime(nuIntTime, nuIntBunch);
+            //bt->DrawInteractionTime(nuIntTime, nuIntBunch);
+            nuIntTime = 0; nuIntBunch = 0; // just set them to 0 for convenience
             for(int k=0; k<NPMTType; k++)
                 daBeamBkg->AddTrueHitsToMDT(MDT->GetHitTubeCollection(fPMTType[k]), MDT->GetPMTResponse(fPMTType[k]), nuIntTime, k);
             daPileUp->AddInteraction(daBeamBkg, nuIntTime, nuIntBunch);
