@@ -136,7 +136,8 @@ int main(int argc, char **argv)
                 daIDNuInt->AddTrueHitsToMDT(MDT->GetHitTubeCollection(fPMTType[k]), MDT->GetPMTResponse(fPMTType[k]), nuIntTime, k);
 
             // Add information about this interaction
-            daPileUp->AddInteraction(daIDNuInt, nuIntTime, nuIntBunch);
+            // only save first event tracks
+            if (j==0) daPileUp->AddInteraction(daIDNuInt, nuIntTime, nuIntBunch);
         }
 
         // Repeating the above, but for beam bkg interactions
